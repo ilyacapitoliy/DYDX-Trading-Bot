@@ -1,1 +1,1 @@
-[]
+[{"market_1": "ENJ-USD", "market_2": "MATIC-USD", "hedge_ratio": 0.3849886711747917, "z_score": 1.56095316426741, "half_life": 11.0, "order_id_m1": "0f4428dbaee5d8c61184b307da263039671799dfea7331fe271723dfc5324df", "order_m1_size": "236", "order_m1_side": "SELL", "order_time_m1": "2023-02-14T00:04:22.081463", "order_id_m2": "6cce511e89c9f146c7f2e5fd4cfe5463ea5c05aa1bf6f0a116647fa3774e297", "order_m2_size": "86", "order_m2_side": "BUY", "order_time_m2": "2023-02-14T00:04:41.776477", "pair_status": "LIVE", "comments": ""}]
