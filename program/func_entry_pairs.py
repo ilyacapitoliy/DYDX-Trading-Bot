@@ -1,4 +1,4 @@
-from constants import ZSCORE_THRESH, USD_PER_TRADE, USD_MIN_COLLATERAL
+from constants import ZSCORE_THRESH, USD_PER_TRADE, USD_MIN_COLLATERAL, TOKEN_FACTOR_10
 from func_utils import format_number
 from func_public import get_candles_recent
 from func_cointegration import calculate_zscore
@@ -28,14 +28,14 @@ def open_positions(client):
     # Initialize container for BotAGent results
     bot_agents = []
 
-    # #Opening JSON file
-    # try:
-    #     open_positions_file = open("bot_agents.json")
-    #     open_positions_dict = json.load(open_positions_file)
-    #     for p in open_positions_dict:
-    #       bot_agents.append(p)
-    # except:
-    #     bot_agents = []
+    #Opening JSON file
+    try:
+        open_positions_file = open("bot_agents.json")
+        open_positions_dict = json.load(open_positions_file)
+        for p in open_positions_dict:
+          bot_agents.append(p)
+    except:
+        bot_agents = []
     
 
     # Find ZScore triggers
@@ -83,10 +83,20 @@ def open_positions(client):
                     accept_base_price = format_number(accept_base_price, base_tick_size)
                     accept_quote_price = format_number(accept_quote_price, quote_tick_size)
                     accept_failsafe_base_price = format_number(failsafe_base_price, base_tick_size)
-
+                
                     # Get size
-                    base_quantity = 1 /base_price * USD_PER_TRADE
-                    quote_quantity = 1 /quote_price * USD_PER_TRADE
+                    # base_quantity = 1 /base_price * USD_PER_TRADE
+                    # quote_quantity = 1 /quote_price * USD_PER_TRADE
+                    # Get size
+                    base_quantity = 1 / base_price * USD_PER_TRADE
+                    quote_quantity = 1 / quote_price * USD_PER_TRADE
+                    ### -ADD HERE- ###
+                    for particolari in TOKEN_FACTOR_10 :
+                        if base_market== particolari :
+                            base_quantity= float(int(base_quantity/10)*10) 
+                        if quote_market== particolari :
+                            quote_quantity= float(int(quote_quantity/10)*10) 
+                    ####-THE REST REMAIN AS THE ORIGINAL VERSION -###
                     base_step_size = markets["markets"][base_market]["stepSize"]
                     quote_step_size = markets["markets"][quote_market]["stepSize"]
 
