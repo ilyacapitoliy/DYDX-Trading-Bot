@@ -6,6 +6,7 @@ from func_private import is_open_positions
 from func_bot_agent import BotAgent
 import pandas as pd
 import json
+import datetime
 
 from pprint import pprint
 
@@ -155,9 +156,12 @@ def open_positions(client):
 
                             # Store open positions
                             
+                            date = datetime.datetime.now()
+
                             open_pairs = []
 
                             open_pairs.append({
+                                "date":date.isoformat(),
                                 "base_market": base_market,
                                 "base side": base_side,
                                 "base price": base_price,
@@ -170,7 +174,7 @@ def open_positions(client):
 
                             # Create and save DataFrame
                             df_1 = pd.DataFrame(open_pairs)
-                            df_1.to_csv("open_positions.csv",mode='a', index= False)
+                            df_1.to_csv("open_positions.csv",mode='a', index= False, header= False)
 
 
 
