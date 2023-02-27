@@ -93,9 +93,9 @@ def open_positions(client):
                     ### -ADD HERE- ###
                     for particolari in TOKEN_FACTOR_10 :
                         if base_market== particolari :
-                            base_quantity= float(int(base_quantity/10)*10) 
+                            base_quantity= float(int(base_quantity/100)*100) 
                         if quote_market== particolari :
-                            quote_quantity= float(int(quote_quantity/10)*10) 
+                            quote_quantity= float(int(quote_quantity/100)*100) 
                     ####-THE REST REMAIN AS THE ORIGINAL VERSION -###
                     base_step_size = markets["markets"][base_market]["stepSize"]
                     quote_step_size = markets["markets"][quote_market]["stepSize"]
@@ -152,6 +152,27 @@ def open_positions(client):
                             # Confirm live status
                             print("Trade status: Live")
                             print("---")
+
+                            # Store open positions
+                            
+                            open_pairs = []
+
+                            open_pairs.append({
+                                "base_market": base_market,
+                                "base side": base_side,
+                                "base price": base_price,
+                                "base size": base_size, 
+                                "quote market": quote_market,
+                                "quote side": quote_side,
+                                "quote price": quote_price,
+                                "quote size": quote_size,
+                            })
+
+                            # Create and save DataFrame
+                            df_1 = pd.DataFrame(open_pairs)
+                            df_1.to_csv("open_positions.csv",mode='a', index= False)
+
+
 
     # Save agents
     print(f"Success: Manage open trade checked")

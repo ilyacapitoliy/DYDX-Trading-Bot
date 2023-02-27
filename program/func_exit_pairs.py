@@ -121,6 +121,7 @@ def manage_trade_exits(client):
     ###
     # Add any other close logic you want here
     # Trigger is_close
+    
     ###
 
     # Close positions if triggered
@@ -183,7 +184,7 @@ def manage_trade_exits(client):
              
            print(close_order_m2["order"]["id"])
            print(">>> Closing <<<")
-           send_message(f"Positions closed: \n{position_market_m1} --VS-- {position_market_m2} ")
+           send_message(f"Positions closed: \nMarket:{position_market_m1}, Price:{accept_price_m1} \n--VS-- \nMarket:{position_market_m2}, Price:{accept_price_m2} ")
            
         except Exception as e:
            print(f"Exit failed for {position_market_m1} with {position_market_m2}")
