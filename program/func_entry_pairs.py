@@ -20,7 +20,7 @@ def open_positions(client):
     """
 
     # Load cointegrated pairs
-    df = pd.read_csv("cointegrated_pairs.csv")
+    df = pd.read_csv("dydxtradebot/program/cointegrated_pairs.csv")
 
 
     # Get markets from referencing of min order size, tick size etc
@@ -31,7 +31,7 @@ def open_positions(client):
 
     #Opening JSON file
     try:
-        open_positions_file = open("bot_agents.json")
+        open_positions_file = open("dydxtradebot/program/bot_agents.json")
         open_positions_dict = json.load(open_positions_file)
         for p in open_positions_dict:
           bot_agents.append(p)
@@ -174,12 +174,12 @@ def open_positions(client):
 
                             # Create and save DataFrame
                             df_1 = pd.DataFrame(open_pairs)
-                            df_1.to_csv("open_positions.csv",mode='a', index= False, header= False)
+                            df_1.to_csv("dydxtradebot/program/open_positions.csv",mode='a', index= False, header= False)
 
 
 
     # Save agents
     print(f"Success: Manage open trade checked")
     if len(bot_agents) > 0:
-        with open("bot_agents.json", "w") as f:
+        with open("dydxtradebot/program/bot_agents.json", "w") as f:
             json.dump(bot_agents, f)

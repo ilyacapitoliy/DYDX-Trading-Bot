@@ -74,7 +74,7 @@ def store_cointegration_results(df_market_prices):
 
     # Create and save DataFrame
     df_criteria_met = pd.DataFrame(criteria_met_pairs)
-    df_criteria_met.to_csv("cointegrated_pairs.csv")
+    df_criteria_met.to_csv("dydxtradebot/program/cointegrated_pairs.csv")
     del df_criteria_met
 
     # Return result

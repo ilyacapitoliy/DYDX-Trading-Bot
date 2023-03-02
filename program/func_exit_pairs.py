@@ -22,7 +22,7 @@ def manage_trade_exits(client):
 
   # Opening JSON file
   try:
-    open_positions_file = open("bot_agents.json")
+    open_positions_file = open("dydxtradebot/program/bot_agents.json")
     open_positions_dict = json.load(open_positions_file)
   except:
     return "complete"
@@ -196,7 +196,7 @@ def manage_trade_exits(client):
 
 # Save remaining items
     print(f"{len(save_output)} Items remaining. Saving file...")
-    with open("bot_agents.json", "w") as f:
+    with open("dydxtradebot/program/bot_agents.json", "w") as f:
        json.dump(save_output, f)
 
 
