@@ -169,7 +169,7 @@ class BotAgent:
         # Ensure order is live before processing
         order_status_m2 = self.check_order_status_by_id(self.order_dict["order_id_m2"])
 
-        send_message(f"Open pair:\n \n{self.market_1}:  \nSide: {self.base_side}, Size: {self.base_size}, Price: {self.base_price} \n -- VS --  \n{self.market_2}:  \nSide: {self.quote_side}, Size: {self.quote_size}, Price: {self.quote_price}")
+        send_message(f"Open pair:\n{self.market_1}:  \nSide: {self.base_side}, Size: {self.base_size}, Price: {self.base_price} \n -- VS --  \n{self.market_2}:  \nSide: {self.quote_side}, Size: {self.quote_size}, Price: {self.quote_price}\n\nZ-Score:{self.z_score}\nHalf-Life{self.half_life}")
         # Guard: Aborder if order failed
         if order_status_m2 != "live":
             self.order_dict["pair_status"] = "ERROR"
