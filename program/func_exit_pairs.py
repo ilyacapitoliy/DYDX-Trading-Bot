@@ -140,8 +140,8 @@ def manage_trade_exits(client):
         # Get and format Price
         price_m1 = float(series_1[-1])
         price_m2 = float(series_2[-1])
-        accept_price_m1 = price_m1 * 1.003 if side_m1 =="BUY" else price_m1 * 0.097
-        accept_price_m2 = price_m2 * 1.003 if side_m2 =="BUY" else price_m2 * 0.097
+        accept_price_m1 = price_m1 * 1.005 if side_m1 =="BUY" else price_m1 * 0.995
+        accept_price_m2 = price_m2 * 1.005 if side_m2 =="BUY" else price_m2 * 0.995
         tick_size_m1= markets["markets"][position_market_m1]["tickSize"]
         tick_size_m2= markets["markets"][position_market_m2]["tickSize"]
         accept_price_m1 = format_number(accept_price_m1, tick_size_m1)
