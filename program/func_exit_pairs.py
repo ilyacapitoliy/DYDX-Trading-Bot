@@ -1,4 +1,4 @@
-from constants import CLOSE_AT_ZSCORE_CROSS
+from constants import CLOSE_AT_ZSCORE_CROSS, UNREALIZED_PNL_LEVEL
 from func_utils import format_number
 from func_public import get_candles_recent
 from func_cointegration import calculate_zscore
@@ -66,6 +66,7 @@ def manage_trade_exits(client):
     order_market_m1 = order_m1.data["order"]["market"]
     order_size_m1 = order_m1.data["order"]["size"]
     order_side_m1 = order_m1.data["order"]["side"]
+    
 
     # Protect API
     time.sleep(0.5)
@@ -75,6 +76,7 @@ def manage_trade_exits(client):
     order_market_m2 = order_m2.data["order"]["market"]
     order_size_m2 = order_m2.data["order"]["size"]
     order_side_m2 = order_m2.data["order"]["side"]
+    
 
     # Perform matching checks
     check_m1 = position_market_m1 == order_market_m1 and position_size_m1 == order_size_m1 and position_side_m1 == order_side_m1
@@ -109,7 +111,7 @@ def manage_trade_exits(client):
           z_score_current = calculate_zscore(spread).values.tolist()[-1]
         
         # Determine trigger
-        z_score_level_check = abs(z_score_current) >= abs(z_score_traded/4)
+        z_score_level_check = abs(z_score_current) >= abs(z_score_traded/3)
         z_score_cross_check = (z_score_current < 0 and z_score_traded > 0) or (z_score_current > 0 and z_score_traded < 0)
 
         # Close trade
@@ -117,10 +119,38 @@ def manage_trade_exits(client):
             
             # Initiate close trigger
             is_close = True
-
     ###
     # Add any other close logic you want here
     # Trigger is_close
+    # Add any other close logic you want here
+    # Trigger is_close
+
+    # Trigger close based on unrealized pnl
+    pos_for_pnl_1 = client.private.get_positions(status="OPEN", market=position_market_m1)
+    unrealizedPnl_1 = pos_for_pnl_1.data["unrealizedPnl"]
+
+    time.sleep(0.5)
+
+    pos_for_pnl_2 = client.private.get_positions(status="OPEN", market=position_market_m2)
+    unrealizedPnl_2 = pos_for_pnl_2.data["unrealizedPnl"]
+
+    time.sleep(0.5)
+    
+    if UNREALIZED_PNL_LEVEL:
+
+      if len(open_positions_dict) > 16:
+        if (unrealizedPnl_1 + unrealizedPnl_2) >=3:
+          is_close=True
+      elif len(open_positions_dict) > 12:
+        if (unrealizedPnl_1 + unrealizedPnl_2) >=5:
+          is_close=True
+      elif len(open_positions_dict) > 6:
+        if (unrealizedPnl_1 + unrealizedPnl_2) >=7:
+          is_close=True
+      else:
+         if (unrealizedPnl_1 + unrealizedPnl_2) >=10:
+          is_close=True
+    # close if unrealized_Pnl_1+unrealized_Pnl_2 >=1%
     
     ###
 
