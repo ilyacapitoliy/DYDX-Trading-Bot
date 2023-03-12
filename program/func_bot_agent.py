@@ -55,10 +55,12 @@ class BotAgent:
             "z_score": z_score,
             "half_life": half_life,
             "order_id_m1": "",
+            "order_m1_price": base_price,
             "order_m1_size": base_size,
             "order_m1_side": base_side,
             "order_time_m1": "",
             "order_id_m2": "",
+            "order_m2_price": quote_price,
             "order_m2_size": quote_size,
             "order_m2_side": quote_side,
             "order_time_m2": "",
@@ -169,7 +171,7 @@ class BotAgent:
         # Ensure order is live before processing
         order_status_m2 = self.check_order_status_by_id(self.order_dict["order_id_m2"])
 
-        send_message(f"Open pair:\n{self.market_1}:  \nSide: {self.base_side}, Size: {self.base_size}, Price: {self.base_price} \n -- VS --  \n{self.market_2}:  \nSide: {self.quote_side}, Size: {self.quote_size}, Price: {self.quote_price}\n\nZ-Score: {round(self.z_score,2)}\nHalf-Life: {int(self.half_life)}")
+        send_message(f"Open pair:\n\n{self.market_1}:  \nSide: {self.base_side}, Size: {self.base_size}, Price: {self.base_price} \n -- VS --  \n{self.market_2}:  \nSide: {self.quote_side}, Size: {self.quote_size}, Price: {self.quote_price}\n\nZ-Score: {round(self.z_score,2)}\nHalf-Life: {int(self.half_life)}")
         # Guard: Aborder if order failed
         if order_status_m2 != "live":
             self.order_dict["pair_status"] = "ERROR"

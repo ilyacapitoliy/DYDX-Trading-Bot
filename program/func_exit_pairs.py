@@ -6,6 +6,8 @@ from func_private import place_market_order
 from func_messaging import send_message
 import json
 import time
+import pandas as pd
+import datetime
 
 from pprint import pprint
 
@@ -52,11 +54,13 @@ def manage_trade_exits(client):
     position_market_m1 = position["market_1"]
     position_size_m1 = position["order_m1_size"]
     position_side_m1 = position["order_m1_side"]
+    position_start_price_m1 = position["order_m1_price"]
 
     # Extract position matching information from file - market 2
     position_market_m2 = position["market_2"]
     position_size_m2 = position["order_m2_size"]
     position_side_m2 = position["order_m2_side"]
+    position_start_price_m2 = position["order_m2_price"]
 
     # Protect API
     time.sleep(0.5)
@@ -83,6 +87,9 @@ def manage_trade_exits(client):
     check_m2 = position_market_m2 == order_market_m2 and position_size_m2 == order_size_m2 and position_side_m2 == order_side_m2
     check_live = position_market_m1 in markets_live and position_market_m2 in markets_live
 
+    if not check_live:
+      manual = True
+
     # Guard: If not all match exit with error
     if not check_m1 or not check_m2 or not check_live:
       print(f"Warning: Not all open positions match exchange records for {position_market_m1} and {position_market_m2}")
@@ -100,6 +107,18 @@ def manage_trade_exits(client):
     # Protect API
     time.sleep(0.2)
 
+    # Detrmine PNL
+    if position_side_m1 == "BUY":
+      pnl_1 = (accept_price_m1 - position_start_price_m1)*position_size_m1
+      pnl_2 = (position_start_price_m2 - accept_price_m2)*position_size_m2
+
+    if position_side_m1 == "SELL":
+      pnl_2 = (accept_price_m2 - position_start_price_m2)*position_size_m2
+      pnl_1 = (position_start_price_m1 - accept_price_m1)*position_size_m1
+
+    pnl = pnl_1 + pnl_2
+    pnl_percent = (pnl/(position_size_m1*position_start_price_m1 + position_size_m2*position_start_price_m2))*100
+
     # Trigger close based on Z-score
     if CLOSE_AT_ZSCORE_CROSS:
 
@@ -111,46 +130,18 @@ def manage_trade_exits(client):
           z_score_current = calculate_zscore(spread).values.tolist()[-1]
         
         # Determine trigger
-        z_score_level_check = abs(z_score_current) >= abs(z_score_traded/3)
+        z_score_level_check = abs(z_score_current) >= abs(z_score_traded/7)
         z_score_cross_check = (z_score_current < 0 and z_score_traded > 0) or (z_score_current > 0 and z_score_traded < 0)
+        pnl_check = pnl_percent > 3.33
 
         # Close trade
-        if z_score_level_check and z_score_cross_check:
+        if z_score_level_check and z_score_cross_check and pnl_check:
             
             # Initiate close trigger
             is_close = True
     ###
     # Add any other close logic you want here
     # Trigger is_close
-    # Add any other close logic you want here
-    # Trigger is_close
-
-    # Trigger close based on unrealized pnl
-    pos_for_pnl_1 = client.private.get_positions(status="OPEN", market=position_market_m1)
-    unrealizedPnl_1 = pos_for_pnl_1.data["unrealizedPnl"]
-
-    time.sleep(0.5)
-
-    pos_for_pnl_2 = client.private.get_positions(status="OPEN", market=position_market_m2)
-    unrealizedPnl_2 = pos_for_pnl_2.data["unrealizedPnl"]
-
-    time.sleep(0.5)
-    
-    if UNREALIZED_PNL_LEVEL:
-
-      if len(open_positions_dict) > 16:
-        if (unrealizedPnl_1 + unrealizedPnl_2) >=3:
-          is_close=True
-      elif len(open_positions_dict) > 12:
-        if (unrealizedPnl_1 + unrealizedPnl_2) >=5:
-          is_close=True
-      elif len(open_positions_dict) > 6:
-        if (unrealizedPnl_1 + unrealizedPnl_2) >=7:
-          is_close=True
-      else:
-         if (unrealizedPnl_1 + unrealizedPnl_2) >=10:
-          is_close=True
-    # close if unrealized_Pnl_1+unrealized_Pnl_2 >=1%
     
     ###
 
@@ -214,7 +205,35 @@ def manage_trade_exits(client):
              
            print(close_order_m2["order"]["id"])
            print(">>> Closing <<<")
-           send_message(f"Pair is closed:\n{position_market_m1}:\nSide: {side_m1}, Size: {position_size_m1}, Price:{accept_price_m1},  \n-- VS -- \n{position_market_m2}:\nSide: {side_m2}, Size: {position_size_m2}, Price: {accept_price_m2}\n\nZ-Score:{z_score_current}")
+           
+           # Store closed positions
+           date = datetime.datetime.now()
+
+           closed_pairs = []
+
+           closed_pairs.append({
+                "date":date.isoformat(),
+                "base_market": position_market_m1,
+                "base side": side_m1,
+                "base price": accept_price_m1,
+                "base size": position_size_m1,
+                "quote market": position_market_m2,
+                "quote side": side_m2,
+                "quote price": accept_price_m2,
+                "quote size": position_size_m2,
+                "z-score":z_score_current,
+                "PnL": pnl,
+                "% PnL": pnl_percent,
+            })
+
+           # Create and save DataFrame
+           df_2 = pd.DataFrame(closed_pairs)
+           df_2.to_csv("dydxtradebot/program/closed_positions.csv",mode='a', index= False, header= False)
+
+           #if manual:              
+           
+           send_message(f"Pair is closed:\n\n{position_market_m1}:\nSide: {side_m1}, Size: {position_size_m1}, Price: {accept_price_m1},  \n-- VS -- \n \
+                        {position_market_m2}:\nSide: {side_m2}, Size: {position_size_m2}, Price: {accept_price_m2}\n\nZ-Score: {z_score_current}\nPnL: {pnl}, {pnl_percent}")
            
         except Exception as e:
            print(f"Exit failed for {position_market_m1} with {position_market_m2}")
