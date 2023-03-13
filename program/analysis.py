@@ -27,9 +27,6 @@ if __name__ == "__main__":
         free_collateral = float(account.data["account"]["freeCollateral"])
         account_number = account.data["account"]["accountNumber"]
 
-        historical_leaderboard_pnls = client.private.get_historical_leaderboard_pnls("DAILY")
-        daily_pnl = historical_leaderboard_pnls.data['leaderboardPnls'][account_number]['absolutePnl']
-
         date = datetime.datetime.now()
 
         balance = []
