@@ -177,8 +177,6 @@ def open_positions(client):
                             df_1 = pd.DataFrame(open_pairs)
                             df_1.to_csv("dydxtradebot/program/open_positions.csv",mode='a', index= False, header= False)
 
-
-
     # Save agents
     print(f"Success: Manage open trade checked")
     if len(bot_agents) > 0:
