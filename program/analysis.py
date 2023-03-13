@@ -1,5 +1,6 @@
 from func_connections import connect_dydx
 import datetime
+from datetime import timedelta
 from func_messaging import send_message
 from func_utils import format_number
 from func_public import get_candles_recent
@@ -27,12 +28,17 @@ if __name__ == "__main__":
         account_number = account.data["account"]["accountNumber"]
 
         date = datetime.datetime.now()
+        
+        yesterday = date - timedelta(days=1)
+        historical_pnl = client.private.get_historical_pnl(created_before_or_at=date, created_on_or_after=yesterday)
+        daily_pnl = historical_pnl.data['HistoricalAggregatedPnl']['totalPnl']
 
         balance = []
 
         balance.append({
             "date":date.isoformat(),
             "balance": free_collateral,
+            "daily pnl": daily_pnl,
         })
 
         # Create and save DataFrame
