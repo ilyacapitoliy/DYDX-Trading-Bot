@@ -34,7 +34,6 @@ if __name__ == "__main__":
         balance.append({
             "date":date.isoformat(),
             "balance": free_collateral,
-            "pnl":daily_pnl,
         })
 
         # Create and save DataFrame
