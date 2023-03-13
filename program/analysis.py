@@ -15,7 +15,6 @@ if __name__ == "__main__":
     try:
         print("Connecting to client...")
         client = connect_dydx()
-        send_message("Start analyzing tool")
     except Exception as e:
         print("Error connecting to client: ", e)
         send_message(f"Failed to connect to client {e}")
@@ -39,6 +38,7 @@ if __name__ == "__main__":
         # Create and save DataFrame
         df_1 = pd.DataFrame(balance)
         df_1.to_csv("balance.csv",mode='a', index= False, header= False)
+        send_message(f"Balance: {round(free_collateral, 2)} $ \n\nSaved to storage. ")
     except Exception as e:
         print("Error connecting to client: ", e)
         send_message(f"Failed to connect to client {e}")
