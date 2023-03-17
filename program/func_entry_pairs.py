@@ -143,6 +143,9 @@ def open_positions(client):
                         # Open Trades
                         bot_open_dict = bot_agent.open_trades()
 
+                        base_id = bot_open_dict["order_id_m1"]
+                        quote_id = bot_open_dict["order_id_m2"]
+
                         # Handle success in opening trades
                         if bot_open_dict["pair_status"] == "LIVE":
 
@@ -162,10 +165,12 @@ def open_positions(client):
 
                             open_pairs.append({
                                 "date":date.isoformat(),
+                                "base_id": base_id,
                                 "base_market": base_market,
                                 "base side": base_side,
                                 "base price": accept_base_price,
                                 "base size": base_size, 
+                                "quote_id": quote_id,
                                 "quote market": quote_market,
                                 "quote side": quote_side,
                                 "quote price": accept_quote_price,
