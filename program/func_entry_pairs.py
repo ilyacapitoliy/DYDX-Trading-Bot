@@ -158,14 +158,14 @@ def open_positions(client):
                             print("---")
 
                             # Determine amount - m2
-                            amount_m1 = accept_base_price*base_size
+                            amount_m1 = float(accept_base_price)*float(base_size)
                             if base_side == "SELL":
-                                amount_m1 = -accept_base_price*base_size
+                                amount_m1 = -float(accept_base_price)*float(base_size)
 
                             # Determine amount - m2
-                            amount_m2 = accept_quote_price*quote_size
+                            amount_m2 = float(accept_quote_price)*float(quote_size)
                             if quote_side == "SELL":
-                                amount_m2 = -accept_quote_price*quote_size
+                                amount_m2 = -float(accept_quote_price)*float(quote_size)
 
                             # Store open positions
                             
