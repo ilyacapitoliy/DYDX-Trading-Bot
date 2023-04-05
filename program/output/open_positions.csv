@@ -1,0 +1,2 @@
+open_date,open_base_id,open_base_market,open_base_side,open_base_price,open_base_size,open_base_amount,open_quote_id,open_quote_market,open_quote_side,open_quote_price,open_quote_size,open_quote_amount,open_z_score
+2023-03-18T15:38:54.857065,7d7e16e466356dc7346b387a2969baa365a32157edeec9c94c75e44d3131ddb,ZRX-USD,BUY,0.243,1000,243.0,710a7fc51f299d985227764ec4720b28553f7901ba49f94842c0bd24b98ecf6,COMP-USD,SELL,47.3,5.27,-249.27,-1.6158236778279982

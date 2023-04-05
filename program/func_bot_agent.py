@@ -72,7 +72,7 @@ class BotAgent:
     def check_order_status_by_id(self, order_id):
 
         # Allow time to process
-        time.sleep(2)
+        time.sleep(4)
 
         # Check order status
         order_status = check_order_status(self.client, order_id)
@@ -171,7 +171,7 @@ class BotAgent:
         # Ensure order is live before processing
         order_status_m2 = self.check_order_status_by_id(self.order_dict["order_id_m2"])
 
-        send_message(f"Open pair:\n\n{self.market_1}:  \nSide: {self.base_side}, Size: {self.base_size}, Price: {self.base_price} \n -- VS --  \n{self.market_2}:  \nSide: {self.quote_side}, Size: {self.quote_size}, Price: {self.quote_price}\n\nZ-Score: {round(self.z_score,2)}\nHalf-Life: {int(self.half_life)}")
+        
         # Guard: Aborder if order failed
         if order_status_m2 != "live":
             self.order_dict["pair_status"] = "ERROR"
@@ -212,11 +212,11 @@ class BotAgent:
                 # !!! CONSIDER SENDING MESSAGE HERE !!!
                 send_message("Failed to execute. Code red. Error code: 101")
 
-
                 # ABORT
                 exit(1)
 
         # Return success result
         else:
             self.order_dict["pair_status"] = "LIVE"
+            send_message(f"Open pair:\n\n{self.market_1}:  \nSide: {self.base_side}, Size: {self.base_size}, Price: {self.base_price}$, Amount: {self.base_price*self.base_size} $ \n -- VS --  \n{self.market_2}:  \nSide: {self.quote_side}, Size: {self.quote_size}, Price: {self.quote_price}$, Amount: {self.quote_price*self.quote_size} $\n\nZ-Score: {round(self.z_score,2)}\nHalf-Life: {int(self.half_life)}")
             return self.order_dict

@@ -1,0 +1,2 @@
+closed_date,closed_base_id,closed_base_market,closed_base_side,closed_base_price,closed_base_size,closed_base_amount,pnl_base,closed_quote_id,closed_quote_market,closed_quote_side,closed_quote_price,closed_quote_size,closed_quote_amount,pnl_quote,closed_z_score,pair_pnl,pair_pnl_percent
+2023-03-23T17:32:06.711873,1ef3c61e794087916756a6f85ee9df4fd6bda1b21fd48a1bcd8e48c56538ae2,ZRX-USD,SELL,0.229,1000,-229.0,-10.26,4c62bcddb8ef00bf9f31076a5cfd3207afe04168a6922421bda41f15b2bbda2,COMP-USD,BUY,43.2,5.27,227.64,22.30264,1.641138348577627,12.04264,4.806450854576429

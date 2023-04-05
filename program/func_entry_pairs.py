@@ -31,7 +31,7 @@ def open_positions(client):
 
     #Opening JSON file
     try:
-        open_positions_file = open("dydxtradebot/program/bot_agents.json")
+        open_positions_file = open("bot_agents.json")
         open_positions_dict = json.load(open_positions_file)
         for p in open_positions_dict:
           bot_agents.append(p)
@@ -157,31 +157,44 @@ def open_positions(client):
                             print("Trade status: Live")
                             print("---")
 
+                            # Determine amount - m2
+                            amount_m1 = accept_base_price*base_size
+                            if base_side == "SELL":
+                                amount_m1 = -accept_base_price*base_size
+
+                            # Determine amount - m2
+                            amount_m2 = accept_quote_price*quote_size
+                            if quote_side == "SELL":
+                                amount_m2 = -accept_quote_price*quote_size
+
                             # Store open positions
                             
                             date = datetime.datetime.now()
-
+                            
                             open_pairs = []
-
+                                                        
                             open_pairs.append({
-                                "date":date.isoformat(),
-                                "base_id": base_id,
-                                "base_market": base_market,
-                                "base side": base_side,
-                                "base price": accept_base_price,
-                                "base size": base_size, 
-                                "quote_id": quote_id,
-                                "quote market": quote_market,
-                                "quote side": quote_side,
-                                "quote price": accept_quote_price,
-                                "quote size": quote_size,
-                                "z-score":z_score,
+                                "open_date":date.isoformat(),
+                                "open_base_id": base_id,
+                                "open_base_market": base_market,
+                                "open_base_side": base_side,
+                                "open_base_price": accept_base_price,
+                                "open_base_size": base_size,
+                                "open_base_amount": amount_m1,
+                                "open_quote_id": quote_id,
+                                "open_quote_market": quote_market,
+                                "open_quote_side": quote_side,
+                                "open_quote_price": accept_quote_price,
+                                "open_quote_size": quote_size,
+                                "open_quote_amount": amount_m2,
+                                "open_z_score":z_score,
                             })
-
-                            # Create and save DataFrame
-                            df_1 = pd.DataFrame(open_pairs)
-                            df_1.to_csv("dydxtradebot/program/open_positions.csv",mode='a', index= False, header= False)
-
+                            
+                            df_entry = pd.DataFrame(open_pairs)
+                            df_entry.to_csv("dydxtradebot/program/output/open_positions.csv",mode='a', index= False, header=False)
+                            
+                            pprint(df_entry.head(30))
+    
     # Save agents
     print(f"Success: Manage open trade checked")
     if len(bot_agents) > 0:

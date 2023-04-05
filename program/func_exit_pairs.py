@@ -8,8 +8,9 @@ import json
 import time
 import pandas as pd
 import datetime
-
 from pprint import pprint
+date_now = datetime.datetime.now()
+
 
 # Manage trade exits
 def manage_trade_exits(client):
@@ -26,6 +27,7 @@ def manage_trade_exits(client):
   try:
     open_positions_file = open("dydxtradebot/program/bot_agents.json")
     open_positions_dict = json.load(open_positions_file)
+    #pprint(open_positions_dict)
   except:
     return "complete"
 
@@ -36,9 +38,27 @@ def manage_trade_exits(client):
   # Get all open positions per trading platform
   exchange_pos = client.private.get_positions(status="OPEN")
   all_exc_pos = exchange_pos.data["positions"]
-  markets_live = []
+
+  markets_names_live = []
+  for j in all_exc_pos:
+    markets_names_live.append(j["market"])
+  
+  markets_live_full = []
   for p in all_exc_pos:
-    markets_live.append(p["market"])
+    markets_live_full.append({"date now":date_now.isoformat(),
+                              "date created":p["createdAt"],
+                              "market": p["market"], 
+                              "side":p["side"],
+                              "size":p["size"],
+                              "maxSize":p["maxSize"],
+                              "entryPrice":p["entryPrice"],
+                              "unrealizedPnl": float(p["unrealizedPnl"]),
+                              "sumOpen":p["sumOpen"],                              
+                              })
+
+  
+  df_live = pd.DataFrame(markets_live_full)
+  #pprint(df_live)
 
   # Protect API
   time.sleep(0.5)
@@ -55,12 +75,14 @@ def manage_trade_exits(client):
     position_size_m1 = position["order_m1_size"]
     position_side_m1 = position["order_m1_side"]
     position_start_price_m1 = position["order_m1_price"]
+    #position_createdAt_m1 = position["order_time_m1"]
 
     # Extract position matching information from file - market 2
     position_market_m2 = position["market_2"]
     position_size_m2 = position["order_m2_size"]
     position_side_m2 = position["order_m2_side"]
     position_start_price_m2 = position["order_m2_price"]
+    #position_createdAt_m2 = position["order_time_m2"]
 
     # Protect API
     time.sleep(0.5)
@@ -70,6 +92,9 @@ def manage_trade_exits(client):
     order_market_m1 = order_m1.data["order"]["market"]
     order_size_m1 = order_m1.data["order"]["size"]
     order_side_m1 = order_m1.data["order"]["side"]
+    order_price_m1 = order_m1.data["order"]["price"]
+    
+    pprint(order_market_m1)
     
 
     # Protect API
@@ -80,19 +105,17 @@ def manage_trade_exits(client):
     order_market_m2 = order_m2.data["order"]["market"]
     order_size_m2 = order_m2.data["order"]["size"]
     order_side_m2 = order_m2.data["order"]["side"]
-    
+    order_price_m2 = order_m2.data["order"]["price"]
 
     # Perform matching checks
     check_m1 = position_market_m1 == order_market_m1 and position_size_m1 == order_size_m1 and position_side_m1 == order_side_m1
     check_m2 = position_market_m2 == order_market_m2 and position_size_m2 == order_size_m2 and position_side_m2 == order_side_m2
-    check_live = position_market_m1 in markets_live and position_market_m2 in markets_live
-
-    if not check_live:
-      manual = True
-
+    check_live = position_market_m1 in markets_names_live and position_market_m2 in markets_names_live
+       
+      
     # Guard: If not all match exit with error
     if not check_m1 or not check_m2 or not check_live:
-      print(f"Warning: Not all open positions match exchange records for {position_market_m1} and {position_market_m2}")
+    #  print(f"Warning: Not all open positions match exchange records for {position_market_m1} and {position_market_m2}")
       continue
 
     # Get prices
@@ -108,16 +131,21 @@ def manage_trade_exits(client):
     time.sleep(0.2)
 
     # Detrmine PNL
-    if position_side_m1 == "BUY":
-      pnl_1 = (accept_price_m1 - position_start_price_m1)*position_size_m1
-      pnl_2 = (position_start_price_m2 - accept_price_m2)*position_size_m2
-
-    if position_side_m1 == "SELL":
-      pnl_2 = (accept_price_m2 - position_start_price_m2)*position_size_m2
-      pnl_1 = (position_start_price_m1 - accept_price_m1)*position_size_m1
-
+    for m in markets_live_full:
+      if m["market"] == position_market_m1:
+        pnl_1 = m["unrealizedPnl"]
+      if m["market"] == position_market_m2:
+        pnl_2 = m["unrealizedPnl"]
+      
+    pprint(f"market_1: {position_market_m1} pnl_1: {pnl_1}")
+    pprint(f"market_2: {position_market_m2} pnl_2: {pnl_2}")
+    
     pnl = pnl_1 + pnl_2
-    pnl_percent = (pnl/(position_size_m1*position_start_price_m1 + position_size_m2*position_start_price_m2))*100
+    pnl_percent = pnl / (float(position_size_m2)*float(position_start_price_m1) + float(position_size_m2)*float(position_start_price_m2))*100
+    
+    pprint(f"pnl: {pnl}")
+    pprint(f"pnl %: {round(pnl_percent,2)}")
+    
 
     # Trigger close based on Z-score
     if CLOSE_AT_ZSCORE_CROSS:
@@ -161,8 +189,8 @@ def manage_trade_exits(client):
         # Get and format Price
         price_m1 = float(series_1[-1])
         price_m2 = float(series_2[-1])
-        accept_price_m1 = price_m1 * 1.005 if side_m1 =="BUY" else price_m1 * 0.995
-        accept_price_m2 = price_m2 * 1.005 if side_m2 =="BUY" else price_m2 * 0.995
+        accept_price_m1 = price_m1 * 1.03 if side_m1 =="BUY" else price_m1 * 0.97
+        accept_price_m2 = price_m2 * 1.03 if side_m2 =="BUY" else price_m2 * 0.97
         tick_size_m1= markets["markets"][position_market_m1]["tickSize"]
         tick_size_m2= markets["markets"][position_market_m2]["tickSize"]
         accept_price_m1 = format_number(accept_price_m1, tick_size_m1)
@@ -183,7 +211,7 @@ def manage_trade_exits(client):
               price=accept_price_m1,
               reduce_only=True,
             )
-
+           base_id = close_order_m1["order"]["id"]
            print(close_order_m1["order"]["id"])
            print(">>> Closing <<<")
            
@@ -202,41 +230,54 @@ def manage_trade_exits(client):
               price=accept_price_m2,
               reduce_only=True,
             )
-             
+           quote_id = close_order_m2["order"]["id"]
            print(close_order_m2["order"]["id"])
            print(">>> Closing <<<")
            
+           # Determine amount - m1
+           amount_m1 = accept_price_m1*position_size_m1
+           if position_side_m1 == "SELL":
+                amount_m1 = -accept_price_m1*position_size_m1
+
+           # Determine amount - m2
+           amount_m2 = accept_price_m2*position_size_m2
+           if position_side_m2 == "SELL":
+                amount_m2 = -accept_price_m2*position_size_m2
+
            # Store closed positions
            date = datetime.datetime.now()
 
            closed_pairs = []
 
            closed_pairs.append({
-                "date":date.isoformat(),
-                "base_market": position_market_m1,
-                "base side": side_m1,
-                "base price": accept_price_m1,
-                "base size": position_size_m1,
-                "quote market": position_market_m2,
-                "quote side": side_m2,
-                "quote price": accept_price_m2,
-                "quote size": position_size_m2,
-                "z-score":z_score_current,
-                "PnL": pnl,
-                "% PnL": pnl_percent,
+                "closed_date":date.isoformat(),
+                "closed_base_id":base_id,
+                "closed_base_market": position_market_m1,
+                "closed_base_side": side_m1,
+                "closed_base_price": accept_price_m1,
+                "closed_base_size": position_size_m1,
+                "closed_base_amount": amount_m1,
+                "pnl_base": round(pnl_1, 2),
+                "closed_quote_id":quote_id,
+                "closed_quote_market": position_market_m2,
+                "closed_quote_side": side_m2,
+                "closed_quote_price": accept_price_m2,
+                "closed_quote_size": position_size_m2,
+                "closed_quote_amount": amount_m2,
+                "pnl_quote": round(pnl_2, 2),
+                "closed_z_score":z_score_current,
+                "pair_pnl": round(pnl, 2),
+                "pair_pnl_percent": round(pnl_percent, 2),
             })
 
            # Create and save DataFrame
-           df_2 = pd.DataFrame(closed_pairs)
-           df_2.to_csv("dydxtradebot/program/closed_positions.csv",mode='a', index= False, header= False)
-
-           #if manual:              
-           
-           send_message(f"Pair is closed:\n\n{position_market_m1}:\nSide: {side_m1}, Size: {position_size_m1}, Price: {accept_price_m1},  \n-- VS -- \n \
-                        {position_market_m2}:\nSide: {side_m2}, Size: {position_size_m2}, Price: {accept_price_m2}\n\nZ-Score: {z_score_current}\nPnL: {pnl}, {pnl_percent}")
+           df_auto_close = pd.DataFrame(closed_pairs)
+           df_auto_close.to_csv("dydxtradebot/program/output/closed_positions.csv",mode='a', index= False, header= False)
+           send_message(f"Bot closed the pair:\n\n{position_market_m1}:\nSide: {side_m1}, Size: {position_size_m1}, Price: {accept_price_m1}$  \n-- VS -- \n{position_market_m2}: \
+                        \nSide: {side_m2}, Size: {position_size_m2}, Price: {accept_price_m2}$\n\nZ-Score: {z_score_current}\nPair PnL: {round(pnl,2)}$\nPair PnL %: {round(pnl_percent,2)}%")
            
         except Exception as e:
-           print(f"Exit failed for {position_market_m1} with {position_market_m2}")
+           print(f"Exit failed for {position_market_m1} with {position_market_m2}: {e}")
            save_output.append(position)
 
     # Keep record  if items and save
