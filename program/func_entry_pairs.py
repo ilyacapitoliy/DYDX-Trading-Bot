@@ -111,6 +111,16 @@ def open_positions(client):
                     check_base = float(base_quantity) > float(base_min_order_size)
                     check_quote = float(quote_quantity) > float(quote_min_order_size)
 
+                    # Determine amount - m2
+                    amount_m1 = float(accept_base_price)*float(base_size)
+                    if base_side == "SELL":
+                        amount_m1 = -float(accept_base_price)*float(base_size)
+
+                    # Determine amount - m2
+                    amount_m2 = float(accept_quote_price)*float(quote_size)
+                    if quote_side == "SELL":
+                        amount_m2 = -float(accept_quote_price)*float(quote_size)
+
                     # If checks pass, place trades
                     if check_base and check_quote:
 
@@ -157,16 +167,6 @@ def open_positions(client):
                             print("Trade status: Live")
                             print("---")
 
-                            # Determine amount - m2
-                            amount_m1 = float(accept_base_price)*float(base_size)
-                            if base_side == "SELL":
-                                amount_m1 = -float(accept_base_price)*float(base_size)
-
-                            # Determine amount - m2
-                            amount_m2 = float(accept_quote_price)*float(quote_size)
-                            if quote_side == "SELL":
-                                amount_m2 = -float(accept_quote_price)*float(quote_size)
-
                             # Store open positions
                             
                             date = datetime.datetime.now()
@@ -193,7 +193,6 @@ def open_positions(client):
                             df_entry = pd.DataFrame(open_pairs)
                             df_entry.to_csv("dydxtradebot/program/output/open_positions.csv",mode='a', index= False, header=False)
                             
-                            pprint(df_entry.head(30))
     
     # Save agents
     print(f"Success: Manage open trade checked")

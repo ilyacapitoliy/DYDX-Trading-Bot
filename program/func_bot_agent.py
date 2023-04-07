@@ -218,5 +218,5 @@ class BotAgent:
         # Return success result
         else:
             self.order_dict["pair_status"] = "LIVE"
-            send_message(f"Open pair:\n\n{self.market_1}:  \nSide: {self.base_side}, Size: {self.base_size}, Price: {self.base_price}$, Amount: {self.base_price*self.base_size} $ \n -- VS --  \n{self.market_2}:  \nSide: {self.quote_side}, Size: {self.quote_size}, Price: {self.quote_price}$, Amount: {self.quote_price*self.quote_size} $\n\nZ-Score: {round(self.z_score,2)}\nHalf-Life: {int(self.half_life)}")
+            send_message(f"Open pair:\n\n{self.market_1}:  \nSide: {self.base_side}, Size: {self.base_size}, Price: {self.base_price}$, Amount: {float(self.base_price)*float(self.base_size)} $ \n -- VS --  \n{self.market_2}:  \nSide: {self.quote_side}, Size: {self.quote_size}, Price: {self.quote_price}$, Amount: {float(self.quote_price)*float(self.quote_size)} $\n\nZ-Score: {round(self.z_score,2)}\nHalf-Life: {int(self.half_life)}")
             return self.order_dict
