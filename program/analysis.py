@@ -161,8 +161,15 @@ if __name__ == "__main__":
                 trade_list.loc[index, 'amount'] = -(row['price']*row['size'] + row['fee'])
 
 
-        trade_list.to_csv('dydxtradebot/program/output/trade_list.csv', mode='a', header=True, index=False)
-        send_message(f"trade_list data was loaded successfully")
+        # Load the existing CSV file (if it exists)
+        try:
+            existing_data_3 = pd.read_csv('trade_list.csv')
+        except FileNotFoundError:
+            existing_data_3 = trade_list
+
+        trade_list = trade_list[~trade_list.isin(existing_data_3)].dropna()  # Remove any rows that are already in the CSV
+        trade_list.to_csv('trade_list.csv', mode='a', header=not bool(existing_data_3), index=False)
+        send_message("trade_list data was loaded successfully!")
 
     except Exception as e:
         print("Error to create trade_list: ", e)
@@ -287,8 +294,15 @@ if __name__ == "__main__":
                     pair_trades.loc[index, 'pair_maxdrawdown'] = maxdrawdown_quote + maxdrawdown_base
                     pair_trades.loc[index, 'pair_maxdrawdown_percent'] = maxdrawdown_base/abs(m['open_base_amount']) * 100 + maxdrawdown_quote/abs(m['open_quote_amount']) * 100
 
-        pair_trades.to_csv('dydxtradebot/program/output/pair_trades.csv', mode='a', header=True, index=False)  
-        send_message(f"pair_trades data was loaded successfully")
+        # Load the existing CSV file (if it exists)
+        try:
+            existing_data_2 = pd.read_csv('pair_trades.csv')
+        except FileNotFoundError:
+            existing_data_2 = pair_trades
+
+        pair_trades = pair_trades[~pair_trades.isin(existing_data_2)].dropna()  # Remove any rows that are already in the CSV
+        pair_trades.to_csv('pair_trades.csv', mode='a', header=not bool(existing_data_2), index=False)
+        send_message("pair_trades data was loaded successfully!")
 
     except Exception as e:
         print("Error to create pair_trades: ", e)
@@ -417,7 +431,14 @@ if __name__ == "__main__":
         for i in range(1, len(total_per_day)):
             total_per_day.loc[i, 'avg_trade_net_profit'] = round((total_per_day.loc[i, 'pnl_daily'] / total_per_day.loc[i, 'num_open_positions']),2)
 
-        total_per_day.to_csv('dydxtradebot/program/output/total_per_day.csv', mode='a', header=True, index=False)
+        # Load the existing CSV file (if it exists)
+        try:
+            existing_data_1 = pd.read_csv('total_per_day.csv')
+        except FileNotFoundError:
+            existing_data_1 = total_per_day
+
+        total_per_day = total_per_day[~total_per_day.isin(existing_data_1)].dropna()  # Remove any rows that are already in the CSV
+        total_per_day.to_csv('total_per_day.csv', mode='a', header=not bool(existing_data_1), index=False)
         send_message("total_per_day data was loaded successfully!")
 
     except Exception as e:
@@ -445,12 +466,23 @@ if __name__ == "__main__":
 
         balance['created_date'] = pd.to_datetime(balance['created_date']).dt.strftime('%d/%m/%Y')
 
-        balance.to_csv('dydxtradebot/program/output/balance.csv', mode='a', header=True, index=False)
+        # Load the existing CSV file (if it exists)
+        try:
+            existing_data = pd.read_csv('balance.csv')
+        except FileNotFoundError:
+            existing_data = balance
+
+        balance = balance[~balance.isin(existing_data)].dropna()  # Remove any rows that are already in the CSV
+        balance.to_csv('balance.csv', mode='a', header=not bool(existing_data), index=False)
         send_message("balance data was loaded successfully!")
 
     except Exception as e:
         print("Error to create balance: ", e)
         send_message(f"Failed to create balance {e}")
+
+
+
+
 
     
     
