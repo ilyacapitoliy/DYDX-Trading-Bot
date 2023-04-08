@@ -168,7 +168,7 @@ if __name__ == "__main__":
             existing_data = pd.DataFrame()
 
         merged_data = pd.concat([existing_data, trade_list])  # Combine the existing data with the new data
-        latest_data = merged_data.groupby(['created_timestamp', 'order_id']).last().reset_index() # Remove any rows that are already in the CSV
+        latest_data = merged_data.drop_duplicates(subset=['order_id'])
         latest_data.to_csv('dydxtradebot/program/output/trade_list.csv', index=False)  # Save the new data to the CSV file
 
         send_message("trade_list data was loaded successfully!")
@@ -304,7 +304,7 @@ if __name__ == "__main__":
             existing_data = pd.DataFrame()
 
         merged_data = pd.concat([existing_data, pair_trades])  # Combine the existing data with the new data
-        latest_data = merged_data.groupby(['open_date', 'open_base_id']).last().reset_index() # Remove any rows that are already in the CSV
+        latest_data = merged_data.drop_duplicates(subset=['open_base_id'])
         latest_data.to_csv('dydxtradebot/program/output/pair_trades.csv', index=False)  # Save the new data to the CSV file
 
         send_message("pair_trades data was loaded successfully!")
@@ -444,7 +444,7 @@ if __name__ == "__main__":
             existing_data = pd.DataFrame()
 
         merged_data = pd.concat([existing_data, total_per_day])  # Combine the existing data with the new data
-        latest_data = merged_data.groupby(['created_date']).last().reset_index() # Remove any rows that are already in the CSV
+        latest_data = merged_data.drop_duplicates(subset=['created_date'])
         latest_data.to_csv('dydxtradebot/program/output/total_per_day.csv', index=False)  # Save the new data to the CSV file
 
         send_message("total_per_day data was loaded successfully!")
@@ -482,7 +482,7 @@ if __name__ == "__main__":
             existing_data = pd.DataFrame()
 
         merged_data = pd.concat([existing_data, balance])  # Combine the existing data with the new data
-        latest_data = merged_data.groupby(['created_date']).last().reset_index() # Remove any rows that are already in the CSV
+        latest_data = merged_data.drop_duplicates(subset=['created_date'])
         latest_data.to_csv('dydxtradebot/program/output/balance.csv', index=False)  # Save the new data to the CSV file
 
         send_message("balance data was loaded successfully!")
