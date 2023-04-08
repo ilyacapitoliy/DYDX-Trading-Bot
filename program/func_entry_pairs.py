@@ -156,6 +156,32 @@ def open_positions(client):
                         base_id = bot_open_dict["order_id_m1"]
                         quote_id = bot_open_dict["order_id_m2"]
 
+                        # Store open positions
+                            
+                        date = datetime.datetime.now()
+                        
+                        open_pairs = []
+                                                    
+                        open_pairs.append({
+                            "open_date":date.isoformat(),
+                            "open_base_id": base_id,
+                            "open_base_market": base_market,
+                            "open_base_side": base_side,
+                            "open_base_price": accept_base_price,
+                            "open_base_size": base_size,
+                            "open_base_amount": amount_m1,
+                            "open_quote_id": quote_id,
+                            "open_quote_market": quote_market,
+                            "open_quote_side": quote_side,
+                            "open_quote_price": accept_quote_price,
+                            "open_quote_size": quote_size,
+                            "open_quote_amount": amount_m2,
+                            "open_z_score":z_score,
+                        })
+                        
+                        df_entry = pd.DataFrame(open_pairs)
+                        df_entry.to_csv("dydxtradebot/program/output/open_positions.csv",mode='a', index= False, header=False)
+
                         # Handle success in opening trades
                         if bot_open_dict["pair_status"] == "LIVE":
 
@@ -165,34 +191,7 @@ def open_positions(client):
 
                             # Confirm live status
                             print("Trade status: Live")
-                            print("---")
-
-                            # Store open positions
-                            
-                            date = datetime.datetime.now()
-                            
-                            open_pairs = []
-                                                        
-                            open_pairs.append({
-                                "open_date":date.isoformat(),
-                                "open_base_id": base_id,
-                                "open_base_market": base_market,
-                                "open_base_side": base_side,
-                                "open_base_price": accept_base_price,
-                                "open_base_size": base_size,
-                                "open_base_amount": amount_m1,
-                                "open_quote_id": quote_id,
-                                "open_quote_market": quote_market,
-                                "open_quote_side": quote_side,
-                                "open_quote_price": accept_quote_price,
-                                "open_quote_size": quote_size,
-                                "open_quote_amount": amount_m2,
-                                "open_z_score":z_score,
-                            })
-                            
-                            df_entry = pd.DataFrame(open_pairs)
-                            df_entry.to_csv("dydxtradebot/program/output/open_positions.csv",mode='a', index= False, header=False)
-                            
+                            print("---")                    
     
     # Save agents
     print(f"Success: Manage open trade checked")
