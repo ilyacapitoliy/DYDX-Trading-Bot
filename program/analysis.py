@@ -163,13 +163,16 @@ if __name__ == "__main__":
 
         # Load the existing CSV file (if it exists)
         try:
-            existing_data_3 = pd.read_csv('trade_list.csv')
+            existing_data = pd.read_csv('dydxtradebot/program/output/trade_list.csv')
         except FileNotFoundError:
-            existing_data_3 = trade_list
+            existing_data = pd.DataFrame()
 
-        trade_list = trade_list[~trade_list.isin(existing_data_3)].dropna()  # Remove any rows that are already in the CSV
-        trade_list.to_csv('trade_list.csv', mode='a', header=not bool(existing_data_3), index=False)
+        trade_list = pd.concat([existing_data, trade_list])  # Combine the existing data with the new data
+        trade_list = trade_list.drop_duplicates()  # Remove any rows that are already in the CSV
+        trade_list.to_csv('dydxtradebot/program/output/trade_list.csv', index=False)  # Save the new data to the CSV file
+
         send_message("trade_list data was loaded successfully!")
+
 
     except Exception as e:
         print("Error to create trade_list: ", e)
@@ -296,13 +299,16 @@ if __name__ == "__main__":
 
         # Load the existing CSV file (if it exists)
         try:
-            existing_data_2 = pd.read_csv('pair_trades.csv')
+            existing_data = pd.read_csv('dydxtradebot/program/output/pair_trades.csv')
         except FileNotFoundError:
-            existing_data_2 = pair_trades
+            existing_data = pd.DataFrame()
 
-        pair_trades = pair_trades[~pair_trades.isin(existing_data_2)].dropna()  # Remove any rows that are already in the CSV
-        pair_trades.to_csv('pair_trades.csv', mode='a', header=not bool(existing_data_2), index=False)
+        pair_trades = pd.concat([existing_data, pair_trades])  # Combine the existing data with the new data
+        pair_trades = pair_trades.drop_duplicates()  # Remove any rows that are already in the CSV
+        pair_trades.to_csv('dydxtradebot/program/output/pair_trades.csv', index=False)  # Save the new data to the CSV file
+
         send_message("pair_trades data was loaded successfully!")
+
 
     except Exception as e:
         print("Error to create pair_trades: ", e)
@@ -433,13 +439,16 @@ if __name__ == "__main__":
 
         # Load the existing CSV file (if it exists)
         try:
-            existing_data_1 = pd.read_csv('total_per_day.csv')
+            existing_data = pd.read_csv('dydxtradebot/program/output/total_per_day.csv')
         except FileNotFoundError:
-            existing_data_1 = total_per_day
+            existing_data = pd.DataFrame()
 
-        total_per_day = total_per_day[~total_per_day.isin(existing_data_1)].dropna()  # Remove any rows that are already in the CSV
-        total_per_day.to_csv('total_per_day.csv', mode='a', header=not bool(existing_data_1), index=False)
+        total_per_day = pd.concat([existing_data, total_per_day])  # Combine the existing data with the new data
+        total_per_day = total_per_day.drop_duplicates()  # Remove any rows that are already in the CSV
+        total_per_day.to_csv('dydxtradebot/program/output/total_per_day.csv', index=False)  # Save the new data to the CSV file
+
         send_message("total_per_day data was loaded successfully!")
+
 
     except Exception as e:
         print("Error to create total_per_day: ", e)
@@ -468,12 +477,14 @@ if __name__ == "__main__":
 
         # Load the existing CSV file (if it exists)
         try:
-            existing_data = pd.read_csv('balance.csv')
+            existing_data = pd.read_csv('dydxtradebot/program/output/balance.csv')
         except FileNotFoundError:
-            existing_data = balance
+            existing_data = pd.DataFrame()
 
-        balance = balance[~balance.isin(existing_data)].dropna()  # Remove any rows that are already in the CSV
-        balance.to_csv('balance.csv', mode='a', header=not bool(existing_data), index=False)
+        balance = pd.concat([existing_data, balance])  # Combine the existing data with the new data
+        balance = balance.drop_duplicates()  # Remove any rows that are already in the CSV
+        balance.to_csv('dydxtradebot/program/output/balance.csv', index=False)  # Save the new data to the CSV file
+
         send_message("balance data was loaded successfully!")
 
     except Exception as e:

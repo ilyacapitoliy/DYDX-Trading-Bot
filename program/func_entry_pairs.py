@@ -196,6 +196,8 @@ def open_positions(client):
     
     # Save agents
     print(f"Success: Manage open trade checked")
+    date_now = datetime.datetime.now().isoformat()
+    pprint(f"func_entry_pairs executed in {date_now}")
     if len(bot_agents) > 0:
         with open("dydxtradebot/program/bot_agents.json", "w") as f:
             json.dump(bot_agents, f)
