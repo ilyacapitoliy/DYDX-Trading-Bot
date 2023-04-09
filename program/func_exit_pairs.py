@@ -273,7 +273,9 @@ def manage_trade_exits(client):
            send_message(f"Bot closed the pair:\n\n{position_market_m1}:\nSide: {side_m1}, Size: {position_size_m1}, Price: {accept_price_m1}$  \n-- VS -- \n{position_market_m2}: \
                         \nSide: {side_m2}, Size: {position_size_m2}, Price: {accept_price_m2}$\n\nZ-Score: {z_score_current}\nPair PnL: {round(pnl,2)}$\nPair PnL %: {round(pnl_percent,2)}%")
            
-           pprint(f"func_entry_pairs executed in {date_now}")
+           with open(f"dydxtradebot/program/closed_positions.txt", "w") as f:
+              f.write(f"func_entry_pairs executed {position_market_m1} VS {position_market_m2} in {date.isoformat()} \n\nBase id:{base_id}\nQuote ID:{quote_id}  ")
+              f.write("------")
            
         except Exception as e:
            print(f"Exit failed for {position_market_m1} with {position_market_m2}: {e}")

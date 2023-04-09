@@ -159,10 +159,17 @@ def open_positions(client):
                         # Store open positions
                             
                         date = datetime.datetime.now()
-                        
-                        open_pairs = []
+
+                        # Handle success in opening trades
+                        if bot_open_dict["pair_status"] == "LIVE":
+
+                            # Append success in opening trades
+                            bot_agents.append(bot_open_dict)
+                            del(bot_open_dict)
+
+                            open_pairs = []
                                                     
-                        open_pairs.append({
+                            open_pairs.append({
                             "open_date":date.isoformat(),
                             "open_base_id": base_id,
                             "open_base_market": base_market,
@@ -177,17 +184,14 @@ def open_positions(client):
                             "open_quote_size": quote_size,
                             "open_quote_amount": amount_m2,
                             "open_z_score":z_score,
-                        })
+                            })
                         
-                        df_entry = pd.DataFrame(open_pairs)
-                        df_entry.to_csv("dydxtradebot/program/output/open_positions.csv",mode='a', index= False, header=False)
+                            df_entry = pd.DataFrame(open_pairs)
+                            df_entry.to_csv("dydxtradebot/program/output/open_positions.csv",mode='a', index= False, header=False)
 
-                        # Handle success in opening trades
-                        if bot_open_dict["pair_status"] == "LIVE":
-
-                            # Append success in opening trades
-                            bot_agents.append(bot_open_dict)
-                            del(bot_open_dict)
+                            with open(f"dydxtradebot/program/open_positions.txt", "w") as f:
+                                f.write(f"func_entry_pairs executed {base_market} VS {quote_market} in {date.isoformat()} \n\nBase id:{base_id}\nQuote ID:{quote_id}  ")
+                                f.write("------")
 
                             # Confirm live status
                             print("Trade status: Live")
@@ -196,7 +200,9 @@ def open_positions(client):
     # Save agents
     print(f"Success: Manage open trade checked")
     date_now = datetime.datetime.now().isoformat()
-    pprint(f"func_entry_pairs executed in {date_now}")
+    with open(f"dydxtradebot/program/open_positions_test.txt", "w") as f:
+        f.write(f"func_entry_pairs executed {base_market} VS {quote_market} in {date.isoformat()} \n\nBase id:{base_id}\nQuote ID:{quote_id}  ")
+        f.write("------")
     if len(bot_agents) > 0:
         with open("dydxtradebot/program/bot_agents.json", "w") as f:
             json.dump(bot_agents, f)

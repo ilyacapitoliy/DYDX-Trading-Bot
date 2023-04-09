@@ -467,8 +467,8 @@ if __name__ == "__main__":
         balance_list.append({
             "created_date":date_now.isoformat(),
             "initial_deposit":5700,
-            "withdrawable_balance":free_collateral,
-            "equity":equity,
+            "withdrawable_balance":round(free_collateral, 2),
+            "equity":round(equity, 2),
         })
 
         balance = pd.DataFrame(balance_list)
