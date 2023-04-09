@@ -444,10 +444,7 @@ if __name__ == "__main__":
             existing_data = pd.DataFrame()
 
         merged_data = pd.concat([existing_data, total_per_day])  # Combine the existing data with the new data
-
-        # Find and keep rows with the largest value in the 'num_orders' column for each unique 'created_date'
-        latest_data = merged_data.loc[merged_data.groupby('created_date')['num_orders'].idxmax()]
-
+        latest_data = merged_data.drop_duplicates(subset=['created_date'])
         latest_data.to_csv('dydxtradebot/program/output/total_per_day.csv', index=False)  # Save the new data to the CSV file
 
         send_message("total_per_day data was loaded successfully!")
