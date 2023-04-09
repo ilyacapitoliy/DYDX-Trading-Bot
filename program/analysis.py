@@ -209,7 +209,7 @@ if __name__ == "__main__":
         markets = []
         for i in range(len(pair_trades)):
             markets.append({
-            "duration_days":int(pair_trades.loc[i,'duration_days']),
+            "duration_days":pair_trades.loc[i,'duration_days'],
             "open_date":pair_trades.loc[i, 'open_date'].isoformat(),
             "closed_date":pair_trades.loc[i, 'closed_date'].isoformat(),
             "open_base_id":pair_trades.loc[i,'open_base_id'],
@@ -431,7 +431,7 @@ if __name__ == "__main__":
 
         # DAILY RETURN
         for i in range(1, len(total_per_day)):
-            total_per_day.loc[i, 'return_daily'] = round((total_per_day.loc[i, 'pnl_daily'] / total_per_day.loc[i, 'volume_open_positions'])*100, 4)
+            total_per_day.loc[i, 'return_daily'] = round((total_per_day.loc[i, 'pnl_daily'] / total_per_day.loc[i, 'volume_open_positions'])*100, 4) 
 
         # Average Trade Net Profit
         for i in range(1, len(total_per_day)):
@@ -444,7 +444,10 @@ if __name__ == "__main__":
             existing_data = pd.DataFrame()
 
         merged_data = pd.concat([existing_data, total_per_day])  # Combine the existing data with the new data
-        latest_data = merged_data.drop_duplicates(subset=['created_date'])
+
+        # Find and keep rows with the largest value in the 'num_orders' column for each unique 'created_date'
+        latest_data = merged_data.loc[merged_data.groupby('created_date')['num_orders'].idxmax()]
+
         latest_data.to_csv('dydxtradebot/program/output/total_per_day.csv', index=False)  # Save the new data to the CSV file
 
         send_message("total_per_day data was loaded successfully!")
