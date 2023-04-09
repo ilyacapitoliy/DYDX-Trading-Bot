@@ -4,3 +4,7 @@ analysis.ipynb
 workbook.py
 models.py
 post_analysis.ipynb
+output/balance.csv
+output/pair_trades.csv
+output/total_per_day.csv
+output/trade_list.csv
