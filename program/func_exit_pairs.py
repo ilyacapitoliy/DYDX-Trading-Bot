@@ -43,9 +43,10 @@ def manage_trade_exits(client):
   for j in all_exc_pos:
     markets_names_live.append(j["market"])
   
+  date_now = datetime.datetime.now().isoformat()
   markets_live_full = []
   for p in all_exc_pos:
-    markets_live_full.append({"date now":date_now.isoformat(),
+    markets_live_full.append({"date now":date_now,
                               "date created":p["createdAt"],
                               "market": p["market"], 
                               "side":p["side"],
@@ -55,10 +56,6 @@ def manage_trade_exits(client):
                               "unrealizedPnl": float(p["unrealizedPnl"]),
                               "sumOpen":p["sumOpen"],                              
                               })
-
-  
-  df_live = pd.DataFrame(markets_live_full)
-  #pprint(df_live)
 
   # Protect API
   time.sleep(0.5)
@@ -150,23 +147,23 @@ def manage_trade_exits(client):
     # Trigger close based on Z-score
     if CLOSE_AT_ZSCORE_CROSS:
 
-        # Initialize z_scores
-        hedge_ratio = position["hedge_ratio"]
-        z_score_traded = position["z_score"]
-        if len(series_1) > 0 and len(series_1) == len(series_2):
-          spread = series_1 - (hedge_ratio * series_2)
-          z_score_current = calculate_zscore(spread).values.tolist()[-1]
-        
-        # Determine trigger
-        z_score_level_check = abs(z_score_current) >= abs(z_score_traded/7)
-        z_score_cross_check = (z_score_current < 0 and z_score_traded > 0) or (z_score_current > 0 and z_score_traded < 0)
-        pnl_check = pnl_percent > 3.33
+      # Initialize z_scores
+      hedge_ratio = position["hedge_ratio"]
+      z_score_traded = position["z_score"]
+      if len(series_1) > 0 and len(series_1) == len(series_2):
+        spread = series_1 - (hedge_ratio * series_2)
+        z_score_current = calculate_zscore(spread).values.tolist()[-1]
+      
+      # Determine trigger
+      z_score_level_check = abs(z_score_current) >= abs(z_score_traded/7)
+      z_score_cross_check = (z_score_current < 0 and z_score_traded > 0) or (z_score_current > 0 and z_score_traded < 0)
+      pnl_check = pnl_percent > 3.33
 
-        # Close trade
-        if z_score_level_check and z_score_cross_check and pnl_check:
-            
-            # Initiate close trigger
-            is_close = True
+      # Close trade
+      if z_score_level_check and z_score_cross_check and pnl_check:
+          
+          # Initiate close trigger
+          is_close = True
     ###
     # Add any other close logic you want here
     # Trigger is_close
@@ -275,7 +272,7 @@ def manage_trade_exits(client):
            df_auto_close.to_csv("dydxtradebot/program/output/closed_positions.csv",mode='a', index= False, header= False)
            send_message(f"Bot closed the pair:\n\n{position_market_m1}:\nSide: {side_m1}, Size: {position_size_m1}, Price: {accept_price_m1}$  \n-- VS -- \n{position_market_m2}: \
                         \nSide: {side_m2}, Size: {position_size_m2}, Price: {accept_price_m2}$\n\nZ-Score: {z_score_current}\nPair PnL: {round(pnl,2)}$\nPair PnL %: {round(pnl_percent,2)}%")
-           date_now = datetime.datetime.now().isoformat()
+           
            pprint(f"func_entry_pairs executed in {date_now}")
            
         except Exception as e:
