@@ -138,7 +138,7 @@ def manage_trade_exits(client):
     pprint(f"market_2: {position_market_m2} pnl_2: {pnl_2}")
     
     pnl = pnl_1 + pnl_2
-    pnl_percent = pnl / (float(position_size_m2)*float(position_start_price_m1) + float(position_size_m2)*float(position_start_price_m2))*100
+    pnl_percent = pnl / (float(position_size_m1)*float(position_start_price_m1) + float(position_size_m2)*float(position_start_price_m2))*100
     
     pprint(f"pnl: {pnl}")
     pprint(f"pnl %: {round(pnl_percent,2)}")

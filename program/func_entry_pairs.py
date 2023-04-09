@@ -156,16 +156,16 @@ def open_positions(client):
                         base_id = bot_open_dict["order_id_m1"]
                         quote_id = bot_open_dict["order_id_m2"]
 
-                        # Store open positions
-                            
-                        date = datetime.datetime.now()
-
                         # Handle success in opening trades
                         if bot_open_dict["pair_status"] == "LIVE":
 
                             # Append success in opening trades
                             bot_agents.append(bot_open_dict)
                             del(bot_open_dict)
+
+                            # Store open positions
+                            
+                            date = datetime.datetime.now()
 
                             open_pairs = []
                                                     
