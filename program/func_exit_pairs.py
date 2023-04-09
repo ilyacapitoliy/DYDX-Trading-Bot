@@ -3,7 +3,7 @@ from func_utils import format_number
 from func_public import get_candles_recent
 from func_cointegration import calculate_zscore
 from func_private import place_market_order
-from func_messaging import send_message
+from func_messaging import send_message_main
 import json
 import time
 import pandas as pd
@@ -273,12 +273,8 @@ def manage_trade_exits(client):
            # Create and save DataFrame
            df_auto_close = pd.DataFrame(closed_pairs)
            df_auto_close.to_csv("dydxtradebot/program/output/closed_positions.csv",mode='a', index= False, header= False)
-           send_message(f"Bot closed the pair:\n\n{position_market_m1}:\nSide: {side_m1}, Size: {position_size_m1}, Price: {accept_price_m1}$  \n-- VS -- \n{position_market_m2}: \
+           send_message_main(f"Bot closed the pair:\n\n{position_market_m1}:\nSide: {side_m1}, Size: {position_size_m1}, Price: {accept_price_m1}$  \n-- VS -- \n{position_market_m2}: \
                         \nSide: {side_m2}, Size: {position_size_m2}, Price: {accept_price_m2}$\n\nZ-Score: {z_score_current}\nPair PnL: {round(pnl,2)}$\nPair PnL %: {round(pnl_percent,2)}%")
-           
-           with open(f"dydxtradebot/program/closed_positions.txt", "w") as f:
-              f.write(f"func_entry_pairs executed {position_market_m1} VS {position_market_m2} in {date.isoformat()} \n\nBase id:{base_id}\nQuote ID:{quote_id}  ")
-              f.write("------")
            
         except Exception as e:
            print(f"Exit failed for {position_market_m1} with {position_market_m2}: {e}")
