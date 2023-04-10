@@ -1,7 +1,7 @@
 from func_private import place_market_order, check_order_status
 from datetime import datetime, timedelta
 import time
-from func_messaging import send_message, send_message_main
+from func_messaging import send_message, send_message_main, send_message_berta
 
 from pprint import pprint
 
@@ -219,4 +219,6 @@ class BotAgent:
         else:
             self.order_dict["pair_status"] = "LIVE"
             send_message_main(f"Open pair:\n\n{self.market_1}:  \nSide: {self.base_side}, Size: {self.base_size}, Price: {self.base_price}$, Amount: {round(float(self.base_price)*float(self.base_size),2)} $ \n -- VS --  \n{self.market_2}:  \nSide: {self.quote_side}, Size: {self.quote_size}, Price: {self.quote_price}$, Amount: {round(float(self.quote_price)*float(self.quote_size),2)} $\n\nZ-Score: {round(self.z_score,2)}\nHalf-Life: {int(self.half_life)} hours")
+            send_message_berta(f"Open pair:\n\n{self.market_1}:  \nSide: {self.base_side}, Price: {self.base_price}$\n -- VS --  \n{self.market_2}:  \nSide: {self.quote_side}, Price: {self.quote_price}$\n\nZ-Score: {round(self.z_score,2)}\nHalf-Life: {int(self.half_life)} hours")
+            
             return self.order_dict
