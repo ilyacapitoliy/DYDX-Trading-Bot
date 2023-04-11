@@ -1,5 +1,8 @@
 import requests
 from decouple import config
+# import telegram
+# from telegram.ext import Updater, CommandHandler
+# import subprocess
 
 # Send Mesage Technical Info about Launch, Errors etc.
 def send_message(message):
@@ -39,4 +42,26 @@ def send_message_berta(message_2):
         return "sent"
     else:
         return "failed"
+    
+
+# # Create a bot instance with your API token
+# bot = telegram.Bot(token='TELEGRAM_TOKEN_BERTA')
+
+# # Define the function that will launch the code on the remote server
+# def launch_code(update, context):
+#     # Replace "your-command-here" with the actual command to launch your Python code on the remote server
+#     cmd = "launch"
+    
+#     # Use the subprocess module to launch the command
+#     process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+    
+#     # Send a message to the user to indicate that the code has been launched
+#     bot.send_message(chat_id=update.message.chat_id, text="Code launched on the remote server.")
+
+# # Create an Updater instance and add the command handler for the "/start" command
+# updater = Updater(token='TELEGRAM_TOKEN_BERTA', use_context=True)
+# updater.dispatcher.add_handler(CommandHandler('start', launch_code))
+
+# # Start the bot
+# updater.start_polling()
     
