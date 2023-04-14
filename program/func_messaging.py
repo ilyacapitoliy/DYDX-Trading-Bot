@@ -1,8 +1,8 @@
 import requests
 from decouple import config
-# import telegram
-# from telegram.ext import Updater, CommandHandler
-# import subprocess
+import telegram
+from telegram.ext import Updater, CommandHandler
+import subprocess
 
 # Send Mesage Technical Info about Launch, Errors etc.
 def send_message(message):
@@ -42,6 +42,7 @@ def send_message_berta(message_2):
         return "sent"
     else:
         return "failed"
+    
     
 
 # # Create a bot instance with your API token
