@@ -117,42 +117,42 @@ if __name__ == "__main__":
                 trade_list.at[index, 'pair_status'] = 'CLOSE'
 
 
-        # Initialize an empty dictionary to keep track of unique IDs
-        id_dict = {}
+        
 
         for index, row in trade_list.iterrows():
+            unique_id = str(uuid.uuid4())
+            id = unique_id[0:12]
             order_id = row['order_id']
             # find the corresponding row in the open positions dataframe
             base_open_row = open_pairs.loc[open_pairs['open_base_id'] == order_id]
-            quote_open_row = open_pairs.loc[open_pairs['open_quote_id'] == order_id]
             # if there is a match, update the trade_list dataframe
             if not base_open_row.empty:
-                # Check if the pair has already been assigned an ID
-                pair_key = (base_open_row['open_base_id'].iloc[0], quote_open_row['open_quote_id'].iloc[0])
-                if pair_key in id_dict:
-                    trade_list.at[index, 'pair_id'] = id_dict[pair_key]
-                else:
-                    # If the pair has not been assigned an ID, generate a new one and add it to the dictionary
-                    unique_id = str(uuid.uuid4())
-                    id = unique_id[0:12]
-                    trade_list.at[index, 'pair_id'] = id
-                    id_dict[pair_key] = id
+                trade_list.at[index, 'pair_id'] = id
 
-        for index, row in trade_list.iterrows():
+        
             order_id = row['order_id']
             # find the corresponding row in the open positions dataframe
             base_close_row = closed_pairs.loc[closed_pairs['closed_base_id'] == order_id]
-            quote_close_row = closed_pairs.loc[closed_pairs['closed_quote_id'] == order_id]
             # if there is a match, update the trade_list dataframe
             if not base_close_row.empty:
-                # Check if the pair has already been assigned an ID
-                pair_key = (base_close_row['closed_base_market'].iloc[0], base_close_row['closed_quote_market'].iloc[0])
-                if pair_key in id_dict:
-                    trade_list.at[index, 'pair_id'] = id_dict[pair_key]
-                else:
-                    # If the pair has not been assigned an ID, generate a new one and add it to the dictionary
-                    trade_list.at[index, 'pair_id'] = id
-                    id_dict[pair_key] = id
+                trade_list.at[index, 'pair_id'] = id
+
+        
+            order_id = row['order_id']
+            # find the corresponding row in the open positions dataframe
+            quote_open_row = open_pairs.loc[open_pairs['open_quote_id'] == order_id]
+            # if there is a match, update the trade_list dataframe
+            if not quote_open_row.empty:
+                trade_list.at[index, 'pair_id'] = id
+
+        
+            order_id = row['order_id']
+            # find the corresponding row in the open positions dataframe
+            quote_close_row = closed_pairs.loc[closed_pairs['closed_quote_id'] == order_id]
+            # if there is a match, update the trade_list dataframe
+            if not quote_close_row.empty:
+                trade_list.at[index, 'pair_id'] = id
+        #Initialize an empty dictionary to keep track of unique IDs
 
         # Make Amount column 
 

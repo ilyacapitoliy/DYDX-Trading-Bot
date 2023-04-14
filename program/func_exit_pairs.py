@@ -157,7 +157,7 @@ def manage_trade_exits(client):
       # Determine trigger
       z_score_level_check = abs(z_score_current) >= abs(z_score_traded/7)
       z_score_cross_check = (z_score_current < 0 and z_score_traded > 0) or (z_score_current > 0 and z_score_traded < 0)
-      pnl_check = pnl_percent > 3.33
+      pnl_check = pnl_percent > 1.33
 
       # Close trade
       if z_score_level_check and z_score_cross_check and pnl_check:
@@ -168,7 +168,7 @@ def manage_trade_exits(client):
     # Add any other close logic you want here
     # Trigger is_close
     if UNREALIZED_PNL_LEVEL:
-      pnl_check_2 = pnl_percent > 2.33
+      pnl_check_2 = pnl_percent > 1.13
       if pnl_check_2:
          is_close = True
     ###
