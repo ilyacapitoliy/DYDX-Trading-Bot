@@ -119,39 +119,17 @@ if __name__ == "__main__":
 
         
 
-        for index, row in trade_list.iterrows():
-            unique_id = str(uuid.uuid4())
-            id = unique_id[0:12]
-            order_id = row['order_id']
-            # find the corresponding row in the open positions dataframe
-            base_open_row = open_pairs.loc[open_pairs['open_base_id'] == order_id]
-            # if there is a match, update the trade_list dataframe
-            if not base_open_row.empty:
-                trade_list.at[index, 'pair_id'] = id
+        # Loop through the rows of the trade_list dataframe
+        for i, trade_row in trade_list.iterrows():
+            order_id = trade_row['order_id']
+            open_base_id = open_pairs.loc[open_pairs['open_base_id'] == order_id, 'pair_id']
+            open_quote_id = open_pairs.loc[open_pairs['open_quote_id'] == order_id, 'pair_id']
+            
+            if len(open_base_id) > 0:
+                trade_list.at[i, 'pair_id'] = open_base_id.iloc[0]
+            elif len(open_quote_id) > 0:
+                trade_list.at[i, 'pair_id'] = open_quote_id.iloc[0]
 
-        
-            order_id = row['order_id']
-            # find the corresponding row in the open positions dataframe
-            base_close_row = closed_pairs.loc[closed_pairs['closed_base_id'] == order_id]
-            # if there is a match, update the trade_list dataframe
-            if not base_close_row.empty:
-                trade_list.at[index, 'pair_id'] = id
-
-        
-            order_id = row['order_id']
-            # find the corresponding row in the open positions dataframe
-            quote_open_row = open_pairs.loc[open_pairs['open_quote_id'] == order_id]
-            # if there is a match, update the trade_list dataframe
-            if not quote_open_row.empty:
-                trade_list.at[index, 'pair_id'] = id
-
-        
-            order_id = row['order_id']
-            # find the corresponding row in the open positions dataframe
-            quote_close_row = closed_pairs.loc[closed_pairs['closed_quote_id'] == order_id]
-            # if there is a match, update the trade_list dataframe
-            if not quote_close_row.empty:
-                trade_list.at[index, 'pair_id'] = id
         #Initialize an empty dictionary to keep track of unique IDs
 
         # Make Amount column 
@@ -183,139 +161,139 @@ if __name__ == "__main__":
 
     trade_list.tail(10)
 
-    try:
-        # Concatanate two tables "open_positions.csv" & "closed_positions.csv"
-        pair_trades = pd.concat([open_pairs,closed_pairs], axis=1)
+    # try:
+    #     # Concatanate two tables "open_positions.csv" & "closed_positions.csv"
+    #     pair_trades = pd.concat([open_pairs,closed_pairs], axis=1)
 
-        # Create empty column for Pair Id
-        pair_trades['pair_id'] = pd.Series(dtype=object)
+    #     # Create empty column for Pair Id
+    #     pair_trades['pair_id'] = pd.Series(dtype=object)
 
-        # Asign Pair Id from Trade List to Pair Trades dataset
-        for index, row in pair_trades.iterrows():
-            open_base_id_row = row['open_base_id']
-            matching_trade = trade_list.loc[trade_list['order_id'] == open_base_id_row]
-            if not matching_trade.empty:
-                pair_id = matching_trade.iloc[0]['pair_id']
-                pair_trades.at[index, 'pair_id'] = pair_id
+    #     # Asign Pair Id from Trade List to Pair Trades dataset
+    #     for index, row in pair_trades.iterrows():
+    #         open_base_id_row = row['open_base_id']
+    #         matching_trade = trade_list.loc[trade_list['order_id'] == open_base_id_row]
+    #         if not matching_trade.empty:
+    #             pair_id = matching_trade.iloc[0]['pair_id']
+    #             pair_trades.at[index, 'pair_id'] = pair_id
 
-        # Convert date to datetime format
-        pair_trades['open_date'] =  pd.to_datetime(pair_trades['open_date']) #.dt.strftime('%d/%m/%Y %H:%M:%S')
-        pair_trades['closed_date'] =  pd.to_datetime(pair_trades['closed_date'])
+    #     # Convert date to datetime format
+    #     pair_trades['open_date'] =  pd.to_datetime(pair_trades['open_date']) #.dt.strftime('%d/%m/%Y %H:%M:%S')
+    #     pair_trades['closed_date'] =  pd.to_datetime(pair_trades['closed_date'])
 
-        # Find pair's duration
-        for i in range(0,len(pair_trades)):
-            pair_trades.loc[i, 'duration'] = pair_trades.loc[i,'closed_date'] - pair_trades.loc[i,'open_date']
+    #     # Find pair's duration
+    #     for i in range(0,len(pair_trades)):
+    #         pair_trades.loc[i, 'duration'] = pair_trades.loc[i,'closed_date'] - pair_trades.loc[i,'open_date']
 
-        pair_trades['duration_days'] = pair_trades['duration'].dt.round('D').dt.days.astype(str)
+    #     pair_trades['duration_days'] = pair_trades['duration'].dt.round('D').dt.days.astype(str)
 
-        # Iterate through Pair Trades dataset and extract data for MaxDrawdown data
-        markets = []
-        for i in range(len(pair_trades)):
-            markets.append({
-            "duration_days":pair_trades.loc[i,'duration_days'],
-            "open_date":pair_trades.loc[i, 'open_date'].isoformat(),
-            "closed_date":pair_trades.loc[i, 'closed_date'].isoformat(),
-            "open_base_id":pair_trades.loc[i,'open_base_id'],
-            "open_base_market":pair_trades.loc[i, 'open_base_market'],
-            "open_base_side":pair_trades.loc[i, 'open_base_side'],
-            "open_base_price":pair_trades.loc[i, 'open_base_price'],
-            "open_base_size":pair_trades.loc[i, 'open_base_size'],
-            "open_base_amount":pair_trades.loc[i,'open_base_amount'],
-            "open_quote_id":pair_trades.loc[i,'open_quote_id'],
-            "open_quote_market":pair_trades.loc[i, 'open_quote_market'],
-            "open_quote_side":pair_trades.loc[i, 'open_quote_side'],
-            "open_quote_price":pair_trades.loc[i, 'open_quote_price'],
-            "open_quote_size":pair_trades.loc[i, 'open_quote_size'],
-            "open_quote_amount":pair_trades.loc[i,'open_quote_amount'],
-            })    
+    #     # Iterate through Pair Trades dataset and extract data for MaxDrawdown data
+    #     markets = []
+    #     for i in range(len(pair_trades)):
+    #         markets.append({
+    #         "duration_days":pair_trades.loc[i,'duration_days'],
+    #         "open_date":pair_trades.loc[i, 'open_date'].isoformat(),
+    #         "closed_date":pair_trades.loc[i, 'closed_date'].isoformat(),
+    #         "open_base_id":pair_trades.loc[i,'open_base_id'],
+    #         "open_base_market":pair_trades.loc[i, 'open_base_market'],
+    #         "open_base_side":pair_trades.loc[i, 'open_base_side'],
+    #         "open_base_price":pair_trades.loc[i, 'open_base_price'],
+    #         "open_base_size":pair_trades.loc[i, 'open_base_size'],
+    #         "open_base_amount":pair_trades.loc[i,'open_base_amount'],
+    #         "open_quote_id":pair_trades.loc[i,'open_quote_id'],
+    #         "open_quote_market":pair_trades.loc[i, 'open_quote_market'],
+    #         "open_quote_side":pair_trades.loc[i, 'open_quote_side'],
+    #         "open_quote_price":pair_trades.loc[i, 'open_quote_price'],
+    #         "open_quote_size":pair_trades.loc[i, 'open_quote_size'],
+    #         "open_quote_amount":pair_trades.loc[i,'open_quote_amount'],
+    #         })    
 
-        markets
+    #     markets
             
-        # MAX DRAWDOWN FOR BASE MARKET
-        close_prices_base = []
+    #     # MAX DRAWDOWN FOR BASE MARKET
+    #     close_prices_base = []
 
-        for m in markets:
-            # Get candles for period when position was open
-            candles = client.public.get_candles(
-                    market=m['open_base_market'],
-                    resolution="1HOUR",
-                    from_iso=m['open_date'],
-                    to_iso=m['closed_date'],
-                )
+    #     for m in markets:
+    #         # Get candles for period when position was open
+    #         candles = client.public.get_candles(
+    #                 market=m['open_base_market'],
+    #                 resolution="1HOUR",
+    #                 from_iso=m['open_date'],
+    #                 to_iso=m['closed_date'],
+    #             )
 
-        # Structure data
-        for candle in candles.data["candles"]:
-            close_prices_base.append({"market":m['open_base_market'], 
-                                "datetime": candle["startedAt"], 
-                                "base_price": float(candle["close"]),
-                                "base_side": m['open_base_side'],
-                                })
+    #     # Structure data
+    #     for candle in candles.data["candles"]:
+    #         close_prices_base.append({"market":m['open_base_market'], 
+    #                             "datetime": candle["startedAt"], 
+    #                             "base_price": float(candle["close"]),
+    #                             "base_side": m['open_base_side'],
+    #                             })
 
-        candles_for_dd = pd.DataFrame(close_prices_base)
+    #     candles_for_dd = pd.DataFrame(close_prices_base)
 
-        if candles_for_dd.loc[candles_for_dd['base_side'] == 'BUY'].empty:
-            maxdrawdown_base = (m['open_base_price'] - candles_for_dd['base_price'].max())*m['open_base_size']
-        elif candles_for_dd.loc[candles_for_dd['base_side'] == 'SELL'].empty:
-            maxdrawdown_base = (candles_for_dd['base_price'].min() - m['open_base_price'])*m['open_base_size']
+    #     if candles_for_dd.loc[candles_for_dd['base_side'] == 'BUY'].empty:
+    #         maxdrawdown_base = (m['open_base_price'] - candles_for_dd['base_price'].max())*m['open_base_size']
+    #     elif candles_for_dd.loc[candles_for_dd['base_side'] == 'SELL'].empty:
+    #         maxdrawdown_base = (candles_for_dd['base_price'].min() - m['open_base_price'])*m['open_base_size']
 
-        for index, row in pair_trades.iterrows():
-            if row['open_base_id'] == m['open_base_id']:
-                pair_trades.loc[index, 'maxdrawdown_base'] = maxdrawdown_base
-                pair_trades.loc[index, 'maxdrawdown_base_percent'] = maxdrawdown_base/abs(m['open_base_amount']) * 100
+    #     for index, row in pair_trades.iterrows():
+    #         if row['open_base_id'] == m['open_base_id']:
+    #             pair_trades.loc[index, 'maxdrawdown_base'] = maxdrawdown_base
+    #             pair_trades.loc[index, 'maxdrawdown_base_percent'] = maxdrawdown_base/abs(m['open_base_amount']) * 100
                 
 
-        # MAX DRAWDOWN FOR QUOTE MARKET
-        close_prices_quote = []
+    #     # MAX DRAWDOWN FOR QUOTE MARKET
+    #     close_prices_quote = []
 
-        for m in markets:
+    #     for m in markets:
 
-            # Get candles for period when position was open
-            candles = client.public.get_candles(
-                    market=m['open_quote_market'],
-                    resolution="1HOUR",
-                    from_iso=m['open_date'],
-                    to_iso=m['closed_date'],
-                )
+    #         # Get candles for period when position was open
+    #         candles = client.public.get_candles(
+    #                 market=m['open_quote_market'],
+    #                 resolution="1HOUR",
+    #                 from_iso=m['open_date'],
+    #                 to_iso=m['closed_date'],
+    #             )
 
-            # Structure data
-            for candle in candles.data["candles"]:
-                close_prices_quote.append({"market":m['open_quote_market'], 
-                                    "datetime": candle["startedAt"], 
-                                    "quote_price": float(candle["close"]),
-                                    "quote_side": m['open_quote_side'],
-                                    })
+    #         # Structure data
+    #         for candle in candles.data["candles"]:
+    #             close_prices_quote.append({"market":m['open_quote_market'], 
+    #                                 "datetime": candle["startedAt"], 
+    #                                 "quote_price": float(candle["close"]),
+    #                                 "quote_side": m['open_quote_side'],
+    #                                 })
 
-            candles_for_dd_quote = pd.DataFrame(close_prices_quote)
-            pprint(candles_for_dd_quote['quote_price'].max())
+    #         candles_for_dd_quote = pd.DataFrame(close_prices_quote)
+    #         pprint(candles_for_dd_quote['quote_price'].max())
 
-            if candles_for_dd_quote.loc[candles_for_dd_quote['quote_side'] == 'BUY'].empty:
-                maxdrawdown_quote = (m['open_quote_price'] -  candles_for_dd_quote['quote_price'].max())*m['open_quote_size']
-            elif candles_for_dd_quote.loc[candles_for_dd_quote['quote_side'] == 'SELL'].empty:
-                maxdrawdown_quote = (candles_for_dd_quote['quote_price'].min()  - m['open_quote_price'])*m['open_quote_size']
+    #         if candles_for_dd_quote.loc[candles_for_dd_quote['quote_side'] == 'BUY'].empty:
+    #             maxdrawdown_quote = (m['open_quote_price'] -  candles_for_dd_quote['quote_price'].max())*m['open_quote_size']
+    #         elif candles_for_dd_quote.loc[candles_for_dd_quote['quote_side'] == 'SELL'].empty:
+    #             maxdrawdown_quote = (candles_for_dd_quote['quote_price'].min()  - m['open_quote_price'])*m['open_quote_size']
 
-            for index, row in pair_trades.iterrows():
-                if row['open_quote_id'] == m['open_quote_id']:
-                    pair_trades.loc[index, 'maxdrawdown_quote'] = maxdrawdown_quote 
-                    pair_trades.loc[index, 'maxdrawdown_quote_percent'] = maxdrawdown_quote/abs(m['open_quote_amount']) * 100
-                    pair_trades.loc[index, 'pair_maxdrawdown'] = maxdrawdown_quote + maxdrawdown_base
-                    pair_trades.loc[index, 'pair_maxdrawdown_percent'] = maxdrawdown_base/abs(m['open_base_amount']) * 100 + maxdrawdown_quote/abs(m['open_quote_amount']) * 100
+    #         for index, row in pair_trades.iterrows():
+    #             if row['open_quote_id'] == m['open_quote_id']:
+    #                 pair_trades.loc[index, 'maxdrawdown_quote'] = maxdrawdown_quote 
+    #                 pair_trades.loc[index, 'maxdrawdown_quote_percent'] = maxdrawdown_quote/abs(m['open_quote_amount']) * 100
+    #                 pair_trades.loc[index, 'pair_maxdrawdown'] = maxdrawdown_quote + maxdrawdown_base
+    #                 pair_trades.loc[index, 'pair_maxdrawdown_percent'] = maxdrawdown_base/abs(m['open_base_amount']) * 100 + maxdrawdown_quote/abs(m['open_quote_amount']) * 100
 
-        # Load the existing CSV file (if it exists)
-        try:
-            existing_data = pd.read_csv('dydxtradebot/program/output/pair_trades.csv')
-        except FileNotFoundError:
-            existing_data = pd.DataFrame()
+    #     # Load the existing CSV file (if it exists)
+    #     try:
+    #         existing_data = pd.read_csv('dydxtradebot/program/output/pair_trades.csv')
+    #     except FileNotFoundError:
+    #         existing_data = pd.DataFrame()
 
-        merged_data = pd.concat([existing_data, pair_trades])  # Combine the existing data with the new data
-        latest_data = merged_data.drop_duplicates(subset=['open_base_id'])
-        latest_data.to_csv('dydxtradebot/program/output/pair_trades.csv', index=False)  # Save the new data to the CSV file
+    #     merged_data = pd.concat([existing_data, pair_trades])  # Combine the existing data with the new data
+    #     latest_data = merged_data.drop_duplicates(subset=['open_base_id'])
+    #     latest_data.to_csv('dydxtradebot/program/output/pair_trades.csv', index=False)  # Save the new data to the CSV file
 
-        send_message("pair_trades data was loaded successfully!")
+    #     send_message("pair_trades data was loaded successfully!")
 
 
-    except Exception as e:
-        print("Error to create pair_trades: ", e)
-        send_message(f"Failed to create pair_trades {e}")
+    # except Exception as e:
+    #     print("Error to create pair_trades: ", e)
+    #     send_message(f"Failed to create pair_trades {e}")
 
     
     try:

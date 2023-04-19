@@ -6,6 +6,7 @@ from func_private import is_open_positions
 from func_bot_agent import BotAgent
 import pandas as pd
 import json
+import uuid
 import datetime
 
 from pprint import pprint
@@ -74,8 +75,8 @@ def open_positions(client):
                     # Get acceptable price in string format with correct number of decimals
                     base_price = series_1[-1]
                     quote_price = series_2[-1]
-                    accept_base_price = float(base_price) * 1.003 if z_score < 0 else float(base_price) * 0.997
-                    accept_quote_price = float(quote_price) * 1.003 if z_score > 0 else float(quote_price) * 0.997
+                    accept_base_price = float(base_price) * 1.01 if z_score < 0 else float(base_price) * 0.99
+                    accept_quote_price = float(quote_price) * 1.01 if z_score > 0 else float(quote_price) * 0.99
                     failsafe_base_price = float(base_price) * 0.05 if z_score < 0 else float(base_price) * 1.7
                     base_tick_size = markets["markets"][base_market]["tickSize"]
                     quote_tick_size = markets["markets"][quote_market]["tickSize"]
@@ -156,6 +157,9 @@ def open_positions(client):
                         base_id = bot_open_dict["order_id_m1"]
                         quote_id = bot_open_dict["order_id_m2"]
 
+                        unique_id = str(uuid.uuid4())
+                        pair_id = unique_id[0:12]
+
                         # Handle success in opening trades
                         if bot_open_dict["pair_status"] == "LIVE":
 
@@ -170,6 +174,7 @@ def open_positions(client):
                             open_pairs = []
                                                     
                             open_pairs.append({
+                            "pair_id":pair_id,
                             "open_date":date.isoformat(),
                             "open_base_id": base_id,
                             "open_base_market": base_market,
@@ -198,3 +203,4 @@ def open_positions(client):
     if len(bot_agents) > 0:
         with open("dydxtradebot/program/bot_agents.json", "w") as f:
             json.dump(bot_agents, f)
+        

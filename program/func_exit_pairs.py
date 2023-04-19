@@ -138,7 +138,7 @@ def manage_trade_exits(client):
     pprint(f"market_2: {position_market_m2} pnl_2: {pnl_2}")
     
     pnl = pnl_1 + pnl_2
-    pnl_percent = pnl / (float(position_size_m1)*float(position_start_price_m1) + float(position_size_m2)*float(position_start_price_m2))*100
+    pnl_percent = pnl_1 / (float(position_size_m1)*float(position_start_price_m1))*100 + pnl_2/(float(position_size_m2)*float(position_start_price_m2))*100
     
     pprint(f"pnl: {pnl}")
     pprint(f"pnl %: {round(pnl_percent,2)}")
@@ -157,7 +157,7 @@ def manage_trade_exits(client):
       # Determine trigger
       z_score_level_check = abs(z_score_current) >= abs(z_score_traded/7)
       z_score_cross_check = (z_score_current < 0 and z_score_traded > 0) or (z_score_current > 0 and z_score_traded < 0)
-      pnl_check = pnl_percent > 1.33
+      pnl_check = pnl_percent > 3.33
 
       # Close trade
       if z_score_level_check and z_score_cross_check and pnl_check:
@@ -168,7 +168,7 @@ def manage_trade_exits(client):
     # Add any other close logic you want here
     # Trigger is_close
     if UNREALIZED_PNL_LEVEL:
-      pnl_check_2 = pnl_percent > 1.13
+      pnl_check_2 = pnl_percent > 5.13
       if pnl_check_2:
          is_close = True
     ###
