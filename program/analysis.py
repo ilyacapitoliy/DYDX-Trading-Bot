@@ -297,6 +297,7 @@ if __name__ == "__main__":
 
     
     try:
+
         # Let's get all  CLOSED positions
         all_positions = client.private.get_positions(status="CLOSED")
         all_positions = all_positions.data['positions']
@@ -379,9 +380,9 @@ if __name__ == "__main__":
 
         merged_total['BUY_SELL_ratio'] = round(merged_total['volume_BUY_orders'] / abs(merged_total['volume_SELL_orders']), 2)
 
-        merged_total['num_live_positions'] = pd.Series(dtype=int)
-        merged_total['volume_live_positions'] = pd.Series(dtype=float)
-        merged_total['return_daily'] = pd.Series(dtype=float)
+        #merged_total['num_live_positions'] = pd.Series(dtype=int)
+        #merged_total['volume_live_positions'] = pd.Series(dtype=float)
+        #merged_total['return_daily'] = pd.Series(dtype=float)
         merged_total['avg_trade_net_profit'] = pd.Series(dtype=float)
 
         total_per_day = merged_total[['created_date',
@@ -391,28 +392,29 @@ if __name__ == "__main__":
                                     'BUY_SELL_ratio',
                                     'volume_open_positions',
                                     'volume_closed_positions',
-                                    'volume_live_positions',
                                     'num_open_positions',
                                     'num_closed_positions',
-                                    'num_live_positions',
                                     'pnl_daily',
                                     'pnl_mean_daily',
                                     'pnl_median_daily',
-                                    'return_daily',
                                     'std_return',
-                                    'avg_trade_net_profit']].fillna(0).sort_values(by=['created_date']).astype({'num_open_positions':'int','num_live_positions':'int','num_orders':'int' })
+                                    'avg_trade_net_profit']].fillna(0).sort_values(by=['created_date']).astype({'num_open_positions':'int','num_orders':'int' })
 
         # NUMBER OF LIVE POSITIONS
-        for i in range(1, len(total_per_day)):
-            total_per_day.loc[i, 'num_live_positions'] = total_per_day.loc[i-1, 'num_live_positions'] + (total_per_day.loc[i, 'num_open_positions'] - total_per_day.loc[i, 'num_closed_positions'])
+        #for i in range(1, len(total_per_day)):
+        #   total_per_day.loc[i, 'num_live_positions'] = get_open_df['unrealizedPnl'].count()
+        #for i in range(1, len(total_per_day)):
+        #    total_per_day.loc[i, 'num_live_positions'] = total_per_day.loc[i-1, 'num_live_positions'] + (total_per_day.loc[i, 'num_open_positions'] - total_per_day.loc[i, 'num_closed_positions'])
 
         # VOLUME OF LIVE POSITIONS
-        for i in range(1, len(total_per_day)):
-            total_per_day.loc[i, 'volume_live_positions'] = total_per_day.loc[i-1, 'volume_live_positions'] + (total_per_day.loc[i, 'volume_open_positions'] - total_per_day.loc[i, 'volume_closed_positions'])
+        #for i in range(1, len(total_per_day)):
+        #    total_per_day.loc[i, 'volume_live_positions'] = get_open_df['amount'].abs().round().sum()
+        #for i in range(1, len(total_per_day)):
+        #    total_per_day.loc[i, 'volume_live_positions'] = total_per_day.loc[i-1, 'volume_live_positions'] + (total_per_day.loc[i, 'volume_open_positions'] - total_per_day.loc[i, 'volume_closed_positions'])
 
         # DAILY RETURN
-        for i in range(1, len(total_per_day)):
-            total_per_day.loc[i, 'return_daily'] = round((total_per_day.loc[i, 'pnl_daily'] / total_per_day.loc[i, 'volume_open_positions'])*100, 4) 
+        #for i in range(1, len(total_per_day)):
+        #    total_per_day.loc[i, 'return_daily'] = round((total_per_day.loc[i, 'pnl_daily'] / total_per_day.loc[i, 'volume_open_positions'])*100, 4) 
 
         # Average Trade Net Profit
         for i in range(1, len(total_per_day)):
@@ -451,7 +453,7 @@ if __name__ == "__main__":
             "withdrawable_balance":round(free_collateral, 2),
             "equity":round(equity, 2),
             "margin":round(equity, 2)-round(free_collateral, 2),
-            "margin_percent":(round(equity, 2)-round(free_collateral, 2)) / round(equity, 2),
+            "margin_percent":(round(equity, 2)-round(free_collateral, 2))*100 / round(equity, 2),
         })
 
         balance = pd.DataFrame(balance_list)
