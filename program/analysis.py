@@ -450,6 +450,8 @@ if __name__ == "__main__":
             "initial_deposit":5700,
             "withdrawable_balance":round(free_collateral, 2),
             "equity":round(equity, 2),
+            "margin":round(equity, 2)-round(free_collateral, 2),
+            "margin_percent":(round(equity, 2)-round(free_collateral, 2)) / round(equity, 2),
         })
 
         balance = pd.DataFrame(balance_list)
