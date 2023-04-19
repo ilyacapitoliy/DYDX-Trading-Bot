@@ -334,7 +334,7 @@ if __name__ == "__main__":
 
         
         # OPEN POSITIONS PER DAY
-        open_positions = get_closed_df.groupby('created_date')['realizedPnl'].count().reset_index(name='num_open_positions')
+        open_positions = get_closed_df.groupby('created_date')['entryPrice'].count().reset_index(name='num_open_positions')
 
         # CLOSED POSITIONS PER DAY
         closed_positions = get_closed_df.groupby('closed_date')['realizedPnl'].count().reset_index(name='num_closed_positions')
