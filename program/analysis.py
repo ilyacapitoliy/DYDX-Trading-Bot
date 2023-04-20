@@ -132,7 +132,7 @@ if __name__ == "__main__":
 
         #Initialize an empty dictionary to keep track of unique IDs
 
-        # Make Amount column 
+        # Make Amount column  - m
 
         for index, row in trade_list.iterrows():
             side = row['side']
@@ -439,6 +439,33 @@ if __name__ == "__main__":
 
 
     try:
+
+        all_positions = client.private.get_positions(status="OPEN")
+        all_positions = all_positions.data['positions']
+        all_open_positions = []
+
+        for x in all_positions:
+            all_open_positions.append({
+                "now_timestamp":date_now.isoformat(),
+                "market": x['market'],
+                "createdAt":x['createdAt'],
+                "entryPrice":float(x['entryPrice']),
+                "size":float(x['size']),
+                "unrealizedPnl":round(float(x['unrealizedPnl']),2),
+            })
+
+        get_open_df = pd.DataFrame(all_open_positions)
+
+        get_open_df['created_date'] = pd.to_datetime(get_open_df['createdAt']).dt.strftime('%d/%m/%Y')
+
+        get_open_df['amount'] = get_open_df['entryPrice']*get_open_df['size']
+
+        time.sleep(0.5)
+
+        num_live_pos = get_open_df['unrealizedPnl'].count()
+        unrealized_Pnl_per_day = get_open_df['unrealizedPnl'].round().sum()
+        in_position_per_day = get_open_df['amount'].abs().round().sum()
+
         # Lets get balance of account
         account = client.private.get_account()
         free_collateral = float(account.data["account"]["freeCollateral"])
@@ -453,12 +480,14 @@ if __name__ == "__main__":
             "withdrawable_balance":round(free_collateral, 2),
             "equity":round(equity, 2),
             "margin":round(equity, 2)-round(free_collateral, 2),
-            "margin_percent":(round(equity, 2)-round(free_collateral, 2))*100 / round(equity, 2),
+            "margin_percent":round((round(equity, 2)-round(free_collateral, 2))*100 / round(equity, 2),2),
+            "num_live_positions":num_live_pos,
+            "amount_in_trade":in_position_per_day,
+            "unrealized_pnl":unrealized_Pnl_per_day,
+
         })
 
         balance = pd.DataFrame(balance_list)
-
-        balance['created_date'] = pd.to_datetime(balance['created_date']).dt.strftime('%d/%m/%Y')
 
         # Load the existing CSV file (if it exists)
         try:

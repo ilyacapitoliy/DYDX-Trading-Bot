@@ -2,6 +2,7 @@ from constants import ZSCORE_THRESH, USD_PER_TRADE, USD_MIN_COLLATERAL, TOKEN_FA
 from func_utils import format_number
 from func_public import get_candles_recent
 from func_cointegration import calculate_zscore
+from func_messaging import send_message_main
 from func_private import is_open_positions
 from func_bot_agent import BotAgent
 import pandas as pd
@@ -60,6 +61,34 @@ def open_positions(client):
 
             # Establish if potential trade
             if abs(z_score) >= ZSCORE_THRESH:
+
+                potential_b_price = series_1[-1]
+                potential_q_price = series_2[-1]
+
+                # Determine side 
+                potential_b_side = "BUY" if z_score < 0 else "SELL"
+                potential_q_side = "BUY" if z_score > 0 else "SELL"
+
+                pot_date = datetime.datetime.now()
+
+                potential_pairs = []
+                                        
+                potential_pairs.append({
+                "date":pot_date.isoformat(),
+                "base_market": base_market,
+                "base_side": potential_b_side,
+                "base_price": potential_b_price,
+                "quote_market": quote_market,
+                "quote_side": potential_q_side,
+                "quote_price": potential_q_price,
+                "z_score":z_score,
+                "half_life":half_life,
+                })
+            
+                df_potentials = pd.DataFrame(potential_pairs)
+                df_potentials.to_csv("dydxtradebot/program/output/potential_trades.csv",mode='a', index=False, header=False)
+
+                send_message_main(f"Potential pair to trade:\n\n{base_market} {potential_b_side} at price {potential_b_price}$\n --VS-- \n{quote_market} {potential_q_side} at price {potential_q_price}$\n\nZ-Score: {z_score}\nHalf-Life: {half_life} hours")
 
                 # Ensure like-for-like not already open (diversify trading)
                 is_base_open = is_open_positions(client, base_market)
