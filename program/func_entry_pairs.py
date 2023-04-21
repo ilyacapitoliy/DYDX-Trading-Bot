@@ -73,26 +73,31 @@ def open_positions(client):
                 pot_date = datetime.datetime.now()
 
                 potential_pairs = []
-                                        
-                potential_pairs.append({
-                "date":pot_date.isoformat(),
-                "base_market": base_market,
-                "base_side": potential_b_side,
-                "base_price": potential_b_price,
-                "quote_market": quote_market,
-                "quote_side": potential_q_side,
-                "quote_price": potential_q_price,
-                "z_score":z_score,
-                "half_life":half_life,
-                })
-            
+
+                #Opening JSON file
+
+                pot_pairs_file = open("dydxtradebot/program/output/potential_trades.json")
+                pot_pairs_dict = json.load(pot_pairs_file)
+                for m in pot_pairs_dict:
+                    m = {
+                        "date":pot_date.isoformat(),
+                        "base_market": base_market,
+                        "base_side": potential_b_side,
+                        "base_price": potential_b_price,
+                        "quote_market": quote_market,
+                        "quote_side": potential_q_side,
+                        "quote_price": potential_q_price,
+                        "z_score":z_score,
+                        "half_life":half_life,
+                        }                           
+                    potential_pairs.append(m)
+
+                with open("dydxtradebot/program/output/potential_trades.json", "a") as f:
+                    json.dump(potential_pairs, f)
+
                 df_potentials = pd.DataFrame(potential_pairs)
                 df_potentials.to_csv("dydxtradebot/program/output/potential_trades.csv",mode='a', index=False, header=False)
                 
-                with open("dydxtradebot/program/output/potential_trades.json", "a") as f:
-                    data = json.load(f)
-                    data.append(potential_pairs)
-                    json.dump(data, f)
 
                 # Protect API
                 time.sleep(60)
