@@ -9,6 +9,7 @@ import pandas as pd
 import json
 import uuid
 import datetime
+import time
 
 from pprint import pprint
 
@@ -87,11 +88,19 @@ def open_positions(client):
             
                 df_potentials = pd.DataFrame(potential_pairs)
                 df_potentials.to_csv("dydxtradebot/program/output/potential_trades.csv",mode='a', index=False, header=False)
+                
                 with open("dydxtradebot/program/output/potential_trades.json", "a") as f:
-                    json.dump(df_potentials, f)
+                    data = json.load(f)
+                    data.append(potential_pairs)
+                    json.dump(data, f)
 
+                # Protect API
+                time.sleep(60)
+                
                 send_message_berta(f"New opportunity for arbitrage:\n\n{base_market}:\n  {potential_b_side} at price: {potential_b_price}$\n --VS-- \n{quote_market}:\n  {potential_q_side} at price: {potential_q_price}$\n\nZ-Score: {round(z_score,2)}\nHalf-Life: {int(half_life)} hours")
-
+                
+                time.sleep(60)
+                
                 # Ensure like-for-like not already open (diversify trading)
                 is_base_open = is_open_positions(client, base_market)
                 is_quote_open = is_open_positions(client, quote_market)
