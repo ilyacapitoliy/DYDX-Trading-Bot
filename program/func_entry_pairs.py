@@ -2,7 +2,7 @@ from constants import ZSCORE_THRESH, USD_PER_TRADE, USD_MIN_COLLATERAL, TOKEN_FA
 from func_utils import format_number
 from func_public import get_candles_recent
 from func_cointegration import calculate_zscore
-from func_messaging import send_message_main
+from func_messaging import send_message_main, send_message_berta
 from func_private import is_open_positions
 from func_bot_agent import BotAgent
 import pandas as pd
@@ -88,7 +88,7 @@ def open_positions(client):
                 df_potentials = pd.DataFrame(potential_pairs)
                 df_potentials.to_csv("dydxtradebot/program/output/potential_trades.csv",mode='a', index=False, header=False)
 
-                send_message_main(f"Potential pair to trade:\n\n{base_market} {potential_b_side} at price {potential_b_price}$\n --VS-- \n{quote_market} {potential_q_side} at price {potential_q_price}$\n\nZ-Score: {z_score}\nHalf-Life: {half_life} hours")
+                send_message_berta(f"New opportunity for arbitrage:\n\n{base_market}:\n{potential_b_side} at price: {potential_b_price}$\n --VS-- \n{quote_market}:\n{potential_q_side} at price: {potential_q_price}$\n\nZ-Score: {round(z_score,2)}\nHalf-Life: {int(half_life)} hours")
 
                 # Ensure like-for-like not already open (diversify trading)
                 is_base_open = is_open_positions(client, base_market)
