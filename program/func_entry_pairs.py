@@ -34,7 +34,7 @@ def open_positions(client):
 
     #Opening JSON file
     try:
-        open_positions_file = open("bot_agents.json")
+        open_positions_file = open("dydxtradebot/program/bot_agents.json")
         open_positions_dict = json.load(open_positions_file)
         for p in open_positions_dict:
           bot_agents.append(p)
