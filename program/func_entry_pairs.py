@@ -73,33 +73,28 @@ def open_positions(client):
                 pot_date = datetime.datetime.now()
 
                 potential_pairs = []
-
-                # Opening JSON file
-                with open("dydxtradebot/program/output/potential_trades.json") as f:
-                    pot_pairs_dict = json.load(f)
-
-                for m in pot_pairs_dict:
-                    m.update({"date": pot_date.isoformat(),
-                            "base_market": base_market,
-                            "base_side": potential_b_side,
-                            "base_price": potential_b_price,
-                            "quote_market": quote_market,
-                            "quote_side": potential_q_side,
-                            "quote_price": potential_q_price,
-                            "z_score": z_score,
-                            "half_life": half_life})
-                    potential_pairs.append(m)
-
-                with open("dydxtradebot/program/output/potential_trades.json", "a") as f:
-                    json.dump(potential_pairs, f)
-                
+                                        
+                potential_pairs.append({
+                "date":pot_date.isoformat(),
+                "base_market": base_market,
+                "base_side": potential_b_side,
+                "base_price": potential_b_price,
+                "quote_market": quote_market,
+                "quote_side": potential_q_side,
+                "quote_price": potential_q_price,
+                "z_score":z_score,
+                "half_life":half_life,
+                })
+            
+                df_potentials = pd.DataFrame(potential_pairs)
+                df_potentials.to_csv("dydxtradebot/program/output/potential_trades.csv",mode='a', index=False, header=False)
 
                 # Protect API
                 time.sleep(15)
                 
                 send_message_berta(f"New opportunity for arbitrage:\n\n{base_market}:\n  {potential_b_side} at price: {potential_b_price}$\n --VS-- \n{quote_market}:\n  {potential_q_side} at price: {potential_q_price}$\n\nZ-Score: {round(z_score,2)}\nHalf-Life: {int(half_life)} hours")
                 
-                time.sleep(15)
+                time.sleep(20)
                 
                 # Ensure like-for-like not already open (diversify trading)
                 is_base_open = is_open_positions(client, base_market)
