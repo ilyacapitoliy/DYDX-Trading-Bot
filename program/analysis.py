@@ -423,6 +423,8 @@ if __name__ == "__main__":
         # Load the existing CSV file (if it exists)
         try:
             existing_data = pd.read_csv('dydxtradebot/program/output/total_per_day.csv')
+            # Drop the last row of the DataFrame
+            existing_data = existing_data.drop(existing_data.index[-1])
         except FileNotFoundError:
             existing_data = pd.DataFrame()
 
