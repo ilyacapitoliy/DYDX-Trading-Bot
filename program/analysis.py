@@ -361,10 +361,10 @@ if __name__ == "__main__":
         sell_volume_per_day = trade_list[trade_list['side'] == 'SELL'].groupby('created_date')['amount'].sum().reset_index(name='volume_SELL_orders')
 
         # VOLUME OPEN POSITIONS PER DAY
-        volume_open_positions_per_day = get_closed_df.groupby('created_date')['sumOpen'].sum().reset_index(name='volume_open_positions')
+        volume_open_positions_per_day = get_closed_df.groupby('created_date')['start amount'].sum().reset_index(name='volume_open_positions')
 
         # VOLUME CLOSED POSITIONS PER DAY
-        volume_closed_positions_per_day = get_closed_df.groupby('closed_date')['sumClose'].sum().reset_index(name='volume_closed_positions')
+        volume_closed_positions_per_day = get_closed_df.groupby('closed_date')['close amount'].sum().reset_index(name='volume_closed_positions')
 
 
         # TOTAL PER DAY
