@@ -168,7 +168,7 @@ def manage_trade_exits(client):
     # Add any other close logic you want here
     # Trigger is_close
     if UNREALIZED_PNL_LEVEL:
-      pnl_check_2 = pnl_percent > 5.13
+      pnl_check_2 = pnl_percent > 1.13
       if pnl_check_2:
          is_close = True
     ###
