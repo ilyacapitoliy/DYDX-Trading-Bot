@@ -19,7 +19,7 @@ def is_open_positions(client, market):
     )
 
     # Determine if open
-    if len(all_positions.data["positions"]) > 2:
+    if len(all_positions.data["positions"]) > 0:
         return True
     else:
         return False
