@@ -145,30 +145,30 @@ def manage_trade_exits(client):
     
 
     # Trigger close based on Z-score
-    if CLOSE_AT_ZSCORE_CROSS:
+    # if CLOSE_AT_ZSCORE_CROSS:
 
-      # Initialize z_scores
-      hedge_ratio = position["hedge_ratio"]
-      z_score_traded = position["z_score"]
-      if len(series_1) > 0 and len(series_1) == len(series_2):
-        spread = series_1 - (hedge_ratio * series_2)
-        z_score_current = calculate_zscore(spread).values.tolist()[-1]
+    #   # Initialize z_scores
+    #   hedge_ratio = position["hedge_ratio"]
+    #   z_score_traded = position["z_score"]
+    #   if len(series_1) > 0 and len(series_1) == len(series_2):
+    #     spread = series_1 - (hedge_ratio * series_2)
+    #     z_score_current = calculate_zscore(spread).values.tolist()[-1]
       
-      # Determine trigger
-      z_score_level_check = abs(z_score_current) >= abs(z_score_traded/7)
-      z_score_cross_check = (z_score_current < 0 and z_score_traded > 0) or (z_score_current > 0 and z_score_traded < 0)
-      pnl_check = pnl_percent > 2.33
+    #   # Determine trigger
+    #   z_score_level_check = abs(z_score_current) >= abs(z_score_traded/7)
+    #   z_score_cross_check = (z_score_current < 0 and z_score_traded > 0) or (z_score_current > 0 and z_score_traded < 0)
+    #   pnl_check = pnl_percent > 0.5
 
-      # Close trade
-      if z_score_level_check and z_score_cross_check and pnl_check:
+    #   # Close trade
+    #   if z_score_level_check and z_score_cross_check and pnl_check:
           
-          # Initiate close trigger
-          is_close = True
+    #       # Initiate close trigger
+    #       is_close = True
     ###
     # Add any other close logic you want here
     # Trigger is_close
     if UNREALIZED_PNL_LEVEL:
-      pnl_check_2 = pnl_percent > 5.13
+      pnl_check_2 = pnl_percent > 0.5
       if pnl_check_2:
          is_close = True
     ###
