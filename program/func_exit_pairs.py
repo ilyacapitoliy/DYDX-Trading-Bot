@@ -168,7 +168,7 @@ def manage_trade_exits(client):
     # Add any other close logic you want here
     # Trigger is_close
     if UNREALIZED_PNL_LEVEL:
-      past_time = date_now - position_createdAt_m1
+      past_time = datetime.fromisoformat(date_now) - datetime.fromisoformat(position_createdAt_m1)
       seconds = past_time.total_seconds()
       if seconds > position_half_life:
          is_close = True
