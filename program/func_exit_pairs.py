@@ -72,15 +72,15 @@ def manage_trade_exits(client):
     position_size_m1 = position["order_m1_size"]
     position_side_m1 = position["order_m1_side"]
     position_start_price_m1 = position["order_m1_price"]
-    #position_createdAt_m1 = position["order_time_m1"]
+    position_createdAt_m1 = position["order_time_m1"]
 
     # Extract position matching information from file - market 2
     position_market_m2 = position["market_2"]
     position_size_m2 = position["order_m2_size"]
     position_side_m2 = position["order_m2_side"]
     position_start_price_m2 = position["order_m2_price"]
-    #position_createdAt_m2 = position["order_time_m2"]
-
+    position_createdAt_m2 = position["order_time_m2"]
+    position_half_life =position["half_life"]
     # Protect API
     time.sleep(0.5)
 
@@ -168,8 +168,9 @@ def manage_trade_exits(client):
     # Add any other close logic you want here
     # Trigger is_close
     if UNREALIZED_PNL_LEVEL:
-      pnl_check_2 = pnl_percent > 0.5
-      if pnl_check_2:
+      past_time = date_now - position_createdAt_m1
+      seconds = past_time.total_seconds()
+      if seconds > position_half_life:
          is_close = True
     ###
 
